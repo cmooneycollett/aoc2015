@@ -63,8 +63,34 @@ fn process_input_file(filename: &str) -> Vec<CardinalDirection> {
 /// Solves AOC 2015 Day 03 Part 1 // Determines the number of houses that receive at least one
 /// present with only Santa delivering presents.
 fn solve_part1(directions: &[CardinalDirection]) -> usize {
-    let mut loc_santa = Point2D::new(0, 0);
-    let mut visited: HashSet<Point2D> = HashSet::from([loc_santa]);
+    let loc_start = Point2D::new(0, 0);
+    let mut visited: HashSet<Point2D> = HashSet::from([loc_start]);
+    deliver_presents(loc_start, &mut directions.iter(), &mut visited);
+    visited.len()
+}
+
+/// Solves AOC 2015 Day 03 Part 2 // Determines the number of houses that receive at least one
+/// present with Santa and Robo-Santa alternating movements.
+fn solve_part2(directions: &[CardinalDirection]) -> usize {
+    let loc_start = Point2D::new(0, 0);
+    let mut visited: HashSet<Point2D> = HashSet::from([loc_start]);
+    deliver_presents(loc_start, &mut directions.iter().step_by(2), &mut visited);
+    deliver_presents(
+        loc_start,
+        &mut directions.iter().skip(1).step_by(2),
+        &mut visited,
+    );
+    visited.len()
+}
+
+/// Adjusts the location, starting at the given location, based on the direction in the given
+/// iterator.
+fn deliver_presents(
+    loc_start: Point2D,
+    directions: &mut dyn Iterator<Item = &CardinalDirection>,
+    visited: &mut HashSet<Point2D>,
+) {
+    let mut loc_santa = loc_start;
     for dirn in directions {
         match dirn {
             CardinalDirection::North => loc_santa.shift(0, -1),
@@ -74,38 +100,6 @@ fn solve_part1(directions: &[CardinalDirection]) -> usize {
         }
         visited.insert(loc_santa);
     }
-    visited.len()
-}
-
-/// Solves AOC 2015 Day 03 Part 2 // Determines the number of houses that receive at least one
-/// present with Santa and Robo-Santa alternating movements.
-fn solve_part2(directions: &[CardinalDirection]) -> usize {
-    let mut loc_santa = Point2D::new(0, 0);
-    let mut loc_robot = Point2D::new(0, 0);
-    let mut visited: HashSet<Point2D> = HashSet::from([loc_santa, loc_robot]);
-    // Santa movements
-    for i in (0..directions.len()).step_by(2) {
-        let dirn = directions[i];
-        match dirn {
-            CardinalDirection::North => loc_santa.shift(0, -1),
-            CardinalDirection::East => loc_santa.shift(1, 0),
-            CardinalDirection::South => loc_santa.shift(0, 1),
-            CardinalDirection::West => loc_santa.shift(-1, 0),
-        }
-        visited.insert(loc_santa);
-    }
-    // Robo-Santa movements
-    for j in (1..directions.len()).step_by(2) {
-        let dirn = directions[j];
-        match dirn {
-            CardinalDirection::North => loc_robot.shift(0, -1),
-            CardinalDirection::East => loc_robot.shift(1, 0),
-            CardinalDirection::South => loc_robot.shift(0, 1),
-            CardinalDirection::West => loc_robot.shift(-1, 0),
-        }
-        visited.insert(loc_robot);
-    }
-    visited.len()
 }
 
 #[cfg(test)]
