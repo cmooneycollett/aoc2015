@@ -45,15 +45,17 @@ fn process_input_file(filename: &str) -> Vec<i64> {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    raw_input.trim().chars().map(|c| if c == '(' {1} else {-1}).collect::<Vec<i64>>()
+    raw_input
+        .trim()
+        .chars()
+        .map(|c| if c == '(' { 1 } else { -1 })
+        .collect::<Vec<i64>>()
 }
 
 /// Solves AOC 2015 Day 1 Part 1 // Determines the resulting floor by navigating up and down floors
 /// accourding to the input characters (starting on floor 0).
 fn solve_part1(input: &[i64]) -> i64 {
-    input
-        .iter()
-        .sum::<i64>()
+    input.iter().sum::<i64>()
 }
 
 /// Solves AOC 2015 Day 1 Part 2 // Determines the index of the first movement that results in the
