@@ -3,5 +3,13 @@
 version = 3
 
 [[package]]
+name = "aoc-utils"
+version = "0.1.0"
+source = "git+https://github.com/misfits42/aoc-utils?branch=main#6bf8abb0063929b6d28e805873e15ba6913f26e5"
+
+[[package]]
 name = "aoc2015"
 version = "0.1.0"
+dependencies = [
+ "aoc-utils",
+]
