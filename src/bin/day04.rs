@@ -2,7 +2,7 @@ use std::fs;
 use std::str;
 use std::time::Instant;
 
-use md5::{Md5, Digest};
+use md5::{Digest, Md5};
 
 const PROBLEM_NAME: &str = "The Ideal Stocking Stuffer";
 const PROBLEM_INPUT_FILE: &str = "./input/day04.txt";
