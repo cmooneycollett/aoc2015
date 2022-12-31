@@ -1,5 +1,8 @@
+use std::collections::HashSet;
 use std::fs;
 use std::time::Instant;
+
+use aoc_utils::cartography::{CardinalDirection, Point2D};
 
 const PROBLEM_NAME: &str = "Perfectly Spherical Houses in a Vacuum";
 const PROBLEM_INPUT_FILE: &str = "./input/day03.txt";
@@ -39,21 +42,43 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 03 input file in the format required by the solver functions.
-/// Returned value is ###.
-fn process_input_file(filename: &str) -> String {
+/// Returned value is vector of cardinal directions indicated by the characters in the input file.
+fn process_input_file(filename: &str) -> Vec<CardinalDirection> {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    let mut directions: Vec<CardinalDirection> = vec![];
+    for c in raw_input.trim().chars() {
+        match c {
+            '^' => directions.push(CardinalDirection::North),
+            '>' => directions.push(CardinalDirection::East),
+            'v' => directions.push(CardinalDirection::South),
+            '<' => directions.push(CardinalDirection::West),
+            _ => panic!("Bad character in input file: {}", c),
+        }
+    }
+    directions
 }
 
-/// Solves AOC 2015 Day 03 Part 1 // ###
-fn solve_part1(_input: &String) -> String {
-    unimplemented!();
+/// Solves AOC 2015 Day 03 Part 1 // Determines the number of houses that receive at least one
+/// present with only Santa delivering presents.
+fn solve_part1(directions: &[CardinalDirection]) -> usize {
+    let mut loc_santa = Point2D::new(0, 0);
+    let mut visited: HashSet<Point2D> = HashSet::from([loc_santa]);
+    for dirn in directions {
+        match dirn {
+            CardinalDirection::North => loc_santa.shift(0, -1),
+            CardinalDirection::East => loc_santa.shift(1, 0),
+            CardinalDirection::South => loc_santa.shift(0, 1),
+            CardinalDirection::West => loc_santa.shift(-1, 0),
+        }
+        visited.insert(loc_santa);
+    }
+    visited.len()
 }
 
 /// Solves AOC 2015 Day 03 Part 2 // ###
-fn solve_part2(_input: &String) -> String {
+fn solve_part2(_directions: &[CardinalDirection]) -> usize {
     unimplemented!();
 }
 
@@ -65,17 +90,15 @@ mod test {
     #[test]
     fn test_day03_part1_actual() {
         let input = process_input_file(PROBLEM_INPUT_FILE);
-        let _solution = solve_part1(&input);
-        unimplemented!();
-        // assert_eq!("###", solution);
+        let solution = solve_part1(&input);
+        assert_eq!(2572, solution);
     }
 
     /// Tests the Day 03 Part 2 solver method against the actual problem solution.
     #[test]
     fn test_day03_part2_actual() {
         let input = process_input_file(PROBLEM_INPUT_FILE);
-        let _solution = solve_part2(&input);
-        unimplemented!();
-        // assert_eq!("###", solution);
+        let solution = solve_part2(&input);
+        assert_eq!(2631, solution);
     }
 }

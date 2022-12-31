@@ -5,7 +5,7 @@ version = 3
 [[package]]
 name = "aoc-utils"
 version = "0.1.0"
-source = "git+https://github.com/misfits42/aoc-utils?branch=main#6bf8abb0063929b6d28e805873e15ba6913f26e5"
+source = "git+https://github.com/misfits42/aoc-utils?branch=main#20ff47926d8dbd293b8fb68d95d2066de21a1507"
 
 [[package]]
 name = "aoc2015"
