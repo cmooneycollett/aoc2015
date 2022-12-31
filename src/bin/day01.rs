@@ -39,22 +39,34 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 1 input file in the format required by the solver functions.
-/// Returned value is vector of chars given in the input file.
-fn process_input_file(filename: &str) -> Vec<char> {
+/// Returned value is vector of +1 (open parenthesis: '(') or -1 (closed parenthesis: ')') values
+/// determined by the chars given in the input file.
+fn process_input_file(filename: &str) -> Vec<i64> {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    raw_input.trim().chars().collect::<Vec<char>>()
+    raw_input.trim().chars().map(|c| if c == '(' {1} else {-1}).collect::<Vec<i64>>()
 }
 
-/// Solves AOC 2015 Day 1 Part 1 // ###
-fn solve_part1(input: &[char]) -> i64 {
-    input.iter().map(|c| if *c == '(' {1} else {-1}).sum::<i64>()
+/// Solves AOC 2015 Day 1 Part 1 // Determines the resulting floor by navigating up and down floors
+/// accourding to the input characters (starting on floor 0).
+fn solve_part1(input: &[i64]) -> i64 {
+    input
+        .iter()
+        .sum::<i64>()
 }
 
-/// Solves AOC 2015 Day 1 Part 2 // ###
-fn solve_part2(_input: &[char]) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 1 Part 2 // Determines the index of the first movement that results in the
+/// basement floor being reached.
+fn solve_part2(input: &[i64]) -> usize {
+    let mut floor = 0;
+    for (i, value) in input.iter().enumerate() {
+        floor += value;
+        if floor == -1 {
+            return i + 1;
+        }
+    }
+    panic!("Day 1 Part 2: did not reach the basement floor (-1)!");
 }
 
 #[cfg(test)]
