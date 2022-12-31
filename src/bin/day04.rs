@@ -50,31 +50,41 @@ fn process_input_file(filename: &str) -> String {
     String::from(raw_input.trim())
 }
 
-/// Solves AOC 2015 Day 04 Part 1 // Determines the lowest number that results in an MD5 hash
-/// starting with five zeroes when post-fixed to the secret key.
+/// Solves AOC 2015 Day 04 Part 1 // Determines the lowest positive integer that results in an MD5
+/// hash starting with five zeroes when post-fixed to the secret key.
 fn solve_part1(secret_key: &str) -> u64 {
+    find_valid_serial_number(secret_key, 5)
+}
+
+/// Solves AOC 2015 Day 04 Part 2 // Determines the lowest positive integer that results in an MD5
+/// hash starting with six zeroes when post-fixed to the secret key.
+fn solve_part2(secret_key: &str) -> u64 {
+    find_valid_serial_number(secret_key, 6)
+}
+
+/// Determines the first positive serial number that results in an MD5 hash (post-fixed to the
+/// secret key) with the specified number of leading zeroes.
+fn find_valid_serial_number(secret_key: &str, leading_zeroes: usize) -> u64 {
     let mut serial: u64 = 1;
+    let target_prefix = "0".repeat(leading_zeroes);
     loop {
         let hex_result = calculate_md5_hex_result(secret_key, serial);
-        if hex_result.starts_with("00000") {
+        if hex_result.starts_with(&target_prefix) {
             return serial;
         }
         serial += 1;
     }
 }
 
-/// Solves AOC 2015 Day 04 Part 2 // ###
-fn solve_part2(_secret_key: &str) -> u64 {
-    0
-}
-
 /// Calculates the hexadecimal string representation of the MD5 hash from the concatenation of the
 /// secret key and serial number.
 fn calculate_md5_hex_result(secret_key: &str, serial: u64) -> String {
+    // Initialise MD5 hasher start
     let input = format!("{}{}", secret_key, serial);
     let mut hasher = Md5::new();
     hasher.update(input.as_bytes());
     let result = hasher.finalize();
+    // Convert hash result bytes into hexadecimal string representation
     let mut hex_output = String::new();
     for b in result {
         hex_output.push_str(&format!("{:02x}", b));
