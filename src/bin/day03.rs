@@ -77,9 +77,35 @@ fn solve_part1(directions: &[CardinalDirection]) -> usize {
     visited.len()
 }
 
-/// Solves AOC 2015 Day 03 Part 2 // ###
-fn solve_part2(_directions: &[CardinalDirection]) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 03 Part 2 // Determines the number of houses that receive at least one
+/// present with Santa and Robo-Santa alternating movements.
+fn solve_part2(directions: &[CardinalDirection]) -> usize {
+    let mut loc_santa = Point2D::new(0, 0);
+    let mut loc_robot = Point2D::new(0, 0);
+    let mut visited: HashSet<Point2D> = HashSet::from([loc_santa, loc_robot]);
+    // Santa movements
+    for i in (0..directions.len()).step_by(2) {
+        let dirn = directions[i];
+        match dirn {
+            CardinalDirection::North => loc_santa.shift(0, -1),
+            CardinalDirection::East => loc_santa.shift(1, 0),
+            CardinalDirection::South => loc_santa.shift(0, 1),
+            CardinalDirection::West => loc_santa.shift(-1, 0),
+        }
+        visited.insert(loc_santa);
+    }
+    // Robo-Santa movements
+    for j in (1..directions.len()).step_by(2) {
+        let dirn = directions[j];
+        match dirn {
+            CardinalDirection::North => loc_robot.shift(0, -1),
+            CardinalDirection::East => loc_robot.shift(1, 0),
+            CardinalDirection::South => loc_robot.shift(0, 1),
+            CardinalDirection::West => loc_robot.shift(-1, 0),
+        }
+        visited.insert(loc_robot);
+    }
+    visited.len()
 }
 
 #[cfg(test)]
