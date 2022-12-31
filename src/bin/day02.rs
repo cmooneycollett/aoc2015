@@ -24,7 +24,7 @@ impl Present {
 
     /// Calculates the amount of wrapping paper needed to wrap the present (measured in square
     /// feet). Result is the present surface area plus the area of the smallest side.
-    pub fn wrapping_paper_needed(&self) -> u64 {
+    pub fn paper_needed(&self) -> u64 {
         let side_areas: [u64; 3] = [
             self.length * self.width,
             self.length * self.height,
@@ -102,19 +102,13 @@ fn process_input_file(filename: &str) -> Vec<Present> {
 /// Solves AOC 2015 Day 02 Part 1 // Calculates the total amount of wrapping paper (in square feet)
 /// needed to wrap all the presents.
 fn solve_part1(presents: &[Present]) -> u64 {
-    presents
-        .iter()
-        .map(|pres| pres.wrapping_paper_needed())
-        .sum()
+    presents.iter().map(|pres| pres.paper_needed()).sum()
 }
 
 /// Solves AOC 2015 Day 02 Part 2 // Calculates the total amount of ribbon needed (in feet) to wrap
 /// all the presents.
 fn solve_part2(presents: &[Present]) -> u64 {
-    presents
-        .iter()
-        .map(|pres| pres.ribbon_needed())
-        .sum()
+    presents.iter().map(|pres| pres.ribbon_needed()).sum()
 }
 
 #[cfg(test)]
