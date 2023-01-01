@@ -12,15 +12,9 @@ const PROBLEM_DAY: u64 = 7;
 
 lazy_static! {
     static ref REGEX_VALUE: Regex = Regex::new(r"^([a-z]+|\d+) -> ([a-z]+)$").unwrap();
-    static ref REGEX_AND: Regex =
-        Regex::new(r"^([a-z]+|\d+) AND ([a-z]+|\d+) -> ([a-z]+)$").unwrap();
-    static ref REGEX_LSHIFT: Regex =
-        Regex::new(r"^([a-z]+|\d+) LSHIFT ([a-z]+|\d+) -> ([a-z]+)$").unwrap();
-    static ref REGEX_RSHIFT: Regex =
-        Regex::new(r"^([a-z]+|\d+) RSHIFT ([a-z]+|\d+) -> ([a-z]+)$").unwrap();
-    static ref REGEX_NOT: Regex = Regex::new(r"^NOT ([a-z]+|\d+) -> ([a-z]+)$").unwrap();
-    static ref REGEX_OR: Regex =
-        Regex::new(r"^([a-z]+|\d+) OR ([a-z]+|\d+) -> ([a-z]+|\d+)$").unwrap();
+    static ref REGEX_UNARY: Regex = Regex::new(r"^NOT ([a-z]+|\d+) -> ([a-z]+)$").unwrap();
+    static ref REGEX_BINARY: Regex =
+        Regex::new(r"^([a-z]+|\d+) (AND|LSHIFT|RSHIFT|OR) ([a-z]+|\d+) -> ([a-z]+)$").unwrap();
 }
 
 /// Represents the different operations observed in the problem.
@@ -68,7 +62,8 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 07 input file in the format required by the solver functions.
-/// Returned value is ###.
+/// Returned value is hashmap mapping each wire to the operation providing the value feeding into
+/// the wire.
 fn process_input_file(filename: &str) -> HashMap<String, Operation> {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
@@ -84,30 +79,23 @@ fn process_input_file(filename: &str) -> HashMap<String, Operation> {
             let left = caps[1].to_string();
             let wire = caps[2].to_string();
             wires.insert(wire, Operation::Value { left });
-        } else if let Ok(Some(caps)) = REGEX_AND.captures(line) {
-            let left = caps[1].to_string();
-            let right = caps[2].to_string();
-            let wire = caps[3].to_string();
-            wires.insert(wire, Operation::And { left, right });
-        } else if let Ok(Some(caps)) = REGEX_LSHIFT.captures(line) {
-            let left = caps[1].to_string();
-            let right = caps[2].to_string();
-            let wire = caps[3].to_string();
-            wires.insert(wire, Operation::LShift { left, right });
-        } else if let Ok(Some(caps)) = REGEX_RSHIFT.captures(line) {
-            let left = caps[1].to_string();
-            let right = caps[2].to_string();
-            let wire = caps[3].to_string();
-            wires.insert(wire, Operation::RShift { left, right });
-        } else if let Ok(Some(caps)) = REGEX_NOT.captures(line) {
+        } else if let Ok(Some(caps)) = REGEX_UNARY.captures(line) {
             let left = caps[1].to_string();
             let wire = caps[2].to_string();
             wires.insert(wire, Operation::Not { left });
-        } else if let Ok(Some(caps)) = REGEX_OR.captures(line) {
+        } else if let Ok(Some(caps)) = REGEX_BINARY.captures(line) {
             let left = caps[1].to_string();
-            let right = caps[2].to_string();
-            let wire = caps[3].to_string();
-            wires.insert(wire, Operation::Or { left, right });
+            let op_type = &caps[2];
+            let right = caps[3].to_string();
+            let wire = caps[4].to_string();
+            let op = match op_type {
+                "AND" => Operation::And { left, right },
+                "OR" => Operation::Or { left, right },
+                "LSHIFT" => Operation::LShift { left, right },
+                "RSHIFT" => Operation::RShift { left, right },
+                _ => panic!("Bad binary operation type: {}", op_type),
+            };
+            wires.insert(wire, op);
         } else {
             panic!("Day 7: bad format input line // {}", line);
         }
@@ -127,16 +115,18 @@ fn solve_part2(wires: &HashMap<String, Operation>) -> u16 {
     let wire_a_value = determine_target_wire_value(&String::from("a"), wires);
     // Update the value provided to wire "b"
     let mut new_wires = wires.clone();
-    new_wires.insert(String::from("b"), Operation::Value { left: wire_a_value.to_string() });
+    new_wires.insert(
+        String::from("b"),
+        Operation::Value {
+            left: wire_a_value.to_string(),
+        },
+    );
     // Recalculate value of wire "a"
     determine_target_wire_value(&String::from("a"), &new_wires)
 }
 
 /// Determines the value provided to the target wire.
-fn determine_target_wire_value(
-    target_wire: &String,
-    wires: &HashMap<String, Operation>,
-) -> u16 {
+fn determine_target_wire_value(target_wire: &String, wires: &HashMap<String, Operation>) -> u16 {
     let mut wire_values: HashMap<String, u16> = HashMap::new();
     determine_target_wire_value_recursive(target_wire, wires, &mut wire_values)
 }
