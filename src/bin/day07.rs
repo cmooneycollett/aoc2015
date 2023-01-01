@@ -68,7 +68,7 @@ fn process_input_file(filename: &str) -> HashMap<String, Operation> {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    let mut wires: HashMap<String, Operation> = HashMap::new();
+    let mut wire_ops: HashMap<String, Operation> = HashMap::new();
     for line in raw_input.lines() {
         let line = line.trim();
         if line.is_empty() {
@@ -78,11 +78,11 @@ fn process_input_file(filename: &str) -> HashMap<String, Operation> {
         if let Ok(Some(caps)) = REGEX_VALUE.captures(line) {
             let left = caps[1].to_string();
             let wire = caps[2].to_string();
-            wires.insert(wire, Operation::Value { left });
+            wire_ops.insert(wire, Operation::Value { left });
         } else if let Ok(Some(caps)) = REGEX_UNARY.captures(line) {
             let left = caps[1].to_string();
             let wire = caps[2].to_string();
-            wires.insert(wire, Operation::Not { left });
+            wire_ops.insert(wire, Operation::Not { left });
         } else if let Ok(Some(caps)) = REGEX_BINARY.captures(line) {
             let left = caps[1].to_string();
             let op_type = &caps[2];
@@ -95,26 +95,26 @@ fn process_input_file(filename: &str) -> HashMap<String, Operation> {
                 "RSHIFT" => Operation::RShift { left, right },
                 _ => panic!("Bad binary operation type: {}", op_type),
             };
-            wires.insert(wire, op);
+            wire_ops.insert(wire, op);
         } else {
             panic!("Day 7: bad format input line // {}", line);
         }
     }
-    wires
+    wire_ops
 }
 
 /// Solves AOC 2015 Day 07 Part 1 // Determines the value that is provided to wire "a".
-fn solve_part1(wires: &HashMap<String, Operation>) -> u16 {
-    determine_target_wire_value(&String::from("a"), wires)
+fn solve_part1(wire_ops: &HashMap<String, Operation>) -> u16 {
+    determine_target_wire_value(&String::from("a"), wire_ops)
 }
 
 /// Solves AOC 2015 Day 07 Part 2 // Determines the value that is provided to wire "a" after
 /// mapping the initial value of wire "a" to wire "b" and recalculating the wire "a" value.
-fn solve_part2(wires: &HashMap<String, Operation>) -> u16 {
+fn solve_part2(wire_ops: &HashMap<String, Operation>) -> u16 {
     // Calculate initial value of wire "a"
-    let wire_a_value = determine_target_wire_value(&String::from("a"), wires);
+    let wire_a_value = determine_target_wire_value(&String::from("a"), wire_ops);
     // Update the value provided to wire "b"
-    let mut new_wires = wires.clone();
+    let mut new_wires = wire_ops.clone();
     new_wires.insert(
         String::from("b"),
         Operation::Value {
@@ -126,15 +126,15 @@ fn solve_part2(wires: &HashMap<String, Operation>) -> u16 {
 }
 
 /// Determines the value provided to the target wire.
-fn determine_target_wire_value(target_wire: &String, wires: &HashMap<String, Operation>) -> u16 {
+fn determine_target_wire_value(target_wire: &String, wire_ops: &HashMap<String, Operation>) -> u16 {
     let mut wire_values: HashMap<String, u16> = HashMap::new();
-    determine_target_wire_value_recursive(target_wire, wires, &mut wire_values)
+    determine_target_wire_value_recursive(target_wire, wire_ops, &mut wire_values)
 }
 
 /// Recursive support function used to determine the value provided to the target wire.
 fn determine_target_wire_value_recursive(
     target_wire: &String,
-    wires: &HashMap<String, Operation>,
+    wire_ops: &HashMap<String, Operation>,
     wire_values: &mut HashMap<String, u16>,
 ) -> u16 {
     // Check if the wire value has already been found
@@ -142,38 +142,45 @@ fn determine_target_wire_value_recursive(
         return *e.get();
     }
     // Calculate the value fed to the target wire
-    let wire_value = {
-        match wires.get(target_wire).unwrap() {
-            Operation::Value { left } => get_term_value(left, wires, wire_values),
-            Operation::And { left, right } => {
-                let left = get_term_value(left, wires, wire_values);
-                let right = get_term_value(right, wires, wire_values);
-                left & right
-            }
-            Operation::LShift { left, right } => {
-                let left = get_term_value(left, wires, wire_values);
-                let right = get_term_value(right, wires, wire_values);
-                left << right
-            }
-            Operation::RShift { left, right } => {
-                let left = get_term_value(left, wires, wire_values);
-                let right = get_term_value(right, wires, wire_values);
-                left >> right
-            }
-            Operation::Not { left } => {
-                let left = get_term_value(left, wires, wire_values);
-                !left
-            }
-            Operation::Or { left, right } => {
-                let left = get_term_value(left, wires, wire_values);
-                let right = get_term_value(right, wires, wire_values);
-                left | right
-            }
-        }
-    };
+    let wire_value = evaluate_wire_value(wire_ops, target_wire, wire_values);
     // Records the value fed to the target wire
     wire_values.insert(target_wire.to_string(), wire_value);
     wire_value
+}
+
+/// Evaluates the value of the given wire.
+fn evaluate_wire_value(
+    wire_ops: &HashMap<String, Operation>,
+    wire: &String,
+    wire_values: &mut HashMap<String, u16>,
+) -> u16 {
+    match wire_ops.get(wire).unwrap() {
+        Operation::Value { left } => get_term_value(left, wire_ops, wire_values),
+        Operation::And { left, right } => {
+            let left = get_term_value(left, wire_ops, wire_values);
+            let right = get_term_value(right, wire_ops, wire_values);
+            left & right
+        }
+        Operation::LShift { left, right } => {
+            let left = get_term_value(left, wire_ops, wire_values);
+            let right = get_term_value(right, wire_ops, wire_values);
+            left << right
+        }
+        Operation::RShift { left, right } => {
+            let left = get_term_value(left, wire_ops, wire_values);
+            let right = get_term_value(right, wire_ops, wire_values);
+            left >> right
+        }
+        Operation::Not { left } => {
+            let left = get_term_value(left, wire_ops, wire_values);
+            !left
+        }
+        Operation::Or { left, right } => {
+            let left = get_term_value(left, wire_ops, wire_values);
+            let right = get_term_value(right, wire_ops, wire_values);
+            left | right
+        }
+    }
 }
 
 /// Gets the value of the given term, if it is a specific value or the name of a wire.
