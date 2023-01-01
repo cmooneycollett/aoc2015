@@ -57,7 +57,7 @@ fn process_input_file(filename: &str) -> Vec<String> {
 }
 
 /// Solves AOC 2015 Day 08 Part 1 // Determines the difference between the total number of
-/// characters between the "in-code" and "in-memory" representations of the input strings.
+/// characters in the "in-code" and "in-memory" representations of the input strings.
 fn solve_part1(input_strings: &[String]) -> usize {
     let mut chars_code = 0;
     let mut chars_mem = 0;
@@ -66,14 +66,23 @@ fn solve_part1(input_strings: &[String]) -> usize {
         new_s = REGEX_QUOTE.replace_all(&new_s, "#").to_string();
         new_s = REGEX_HEX.replace_all(&new_s, "#").to_string();
         chars_code += s.len();
-        chars_mem += new_s.len() - 2;
+        chars_mem += new_s.len() - 2; // Exclude open and close double-quotes from in-mem length
     }
     chars_code - chars_mem
 }
 
-/// Solves AOC 2015 Day 08 Part 2 // ###
-fn solve_part2(_input_strings: &[String]) -> usize {
-    0
+/// Solves AOC 2015 Day 08 Part 2 // Determines the difference between the total number of
+/// characters in the new-encoding and in-code representations of the input strings.
+fn solve_part2(input_strings: &[String]) -> usize {
+    let mut chars_encoded = 0;
+    let mut chars_code = 0;
+    for s in input_strings {
+        let mut new_s = s.replace('\\', "\\\\");
+        new_s = new_s.replace('"', "\\\"");
+        chars_code += s.len();
+        chars_encoded += new_s.len() + 2; // Include new open and close double-quotes in encoded len
+    }
+    chars_encoded - chars_code
 }
 
 #[cfg(test)]
