@@ -53,7 +53,11 @@ fn process_input_file(filename: &str) -> Vec<String> {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    raw_input.trim().lines().map(|line| line.to_string()).collect::<Vec<String>>()
+    raw_input
+        .trim()
+        .lines()
+        .map(|line| line.to_string())
+        .collect::<Vec<String>>()
 }
 
 /// Solves AOC 2015 Day 08 Part 1 // Determines the difference between the total number of
@@ -62,11 +66,13 @@ fn solve_part1(input_strings: &[String]) -> usize {
     let mut chars_code = 0;
     let mut chars_mem = 0;
     for s in input_strings {
-        let mut new_s = REGEX_SLASH.replace_all(s, "#").to_string();
-        new_s = REGEX_QUOTE.replace_all(&new_s, "#").to_string();
-        new_s = REGEX_HEX.replace_all(&new_s, "#").to_string();
+        // Find the in-mem representation of string - '#' used as placeholder
+        let mut s_mem = REGEX_SLASH.replace_all(s, "#").to_string();
+        s_mem = REGEX_QUOTE.replace_all(&s_mem, "#").to_string();
+        s_mem = REGEX_HEX.replace_all(&s_mem, "#").to_string();
+        // Add to in-code and in-mem length totals
         chars_code += s.len();
-        chars_mem += new_s.len() - 2; // Exclude open and close double-quotes from in-mem length
+        chars_mem += s_mem.len() - 2; // Exclude open and close double-quotes from in-mem length
     }
     chars_code - chars_mem
 }
@@ -77,8 +83,10 @@ fn solve_part2(input_strings: &[String]) -> usize {
     let mut chars_encoded = 0;
     let mut chars_code = 0;
     for s in input_strings {
+        // Find the new encoded representation of string
         let mut new_s = s.replace('\\', "\\\\");
         new_s = new_s.replace('"', "\\\"");
+        // Add to new-encoding and in-code length totals
         chars_code += s.len();
         chars_encoded += new_s.len() + 2; // Include new open and close double-quotes in encoded len
     }
