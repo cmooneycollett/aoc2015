@@ -1,9 +1,18 @@
 use std::fs;
 use std::time::Instant;
 
+use fancy_regex::Regex;
+use lazy_static::lazy_static;
+
 const PROBLEM_NAME: &str = "Matchsticks";
 const PROBLEM_INPUT_FILE: &str = "./input/day08.txt";
 const PROBLEM_DAY: u64 = 8;
+
+lazy_static! {
+    static ref REGEX_HEX: Regex = Regex::new(r#"\\x[0-9a-f][0-9a-f]"#).unwrap();
+    static ref REGEX_QUOTE: Regex = Regex::new(r#"\\\""#).unwrap();
+    static ref REGEX_SLASH: Regex = Regex::new(r#"\\\\"#).unwrap();
+}
 
 /// Processes the AOC 2015 Day 08 input file and solves both parts of the problem. Solutions are
 /// printed to stdout.
@@ -39,22 +48,32 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 08 input file in the format required by the solver functions.
-/// Returned value is ###.
-fn process_input_file(filename: &str) -> String {
+/// Returned value is a vector of strings given as lines in the input file.
+fn process_input_file(filename: &str) -> Vec<String> {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    raw_input.trim().lines().map(|line| line.to_string()).collect::<Vec<String>>()
 }
 
-/// Solves AOC 2015 Day 08 Part 1 // ###
-fn solve_part1(_input: &String) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 08 Part 1 // Determines the difference between the total number of
+/// characters between the "in-code" and "in-memory" representations of the input strings.
+fn solve_part1(input_strings: &[String]) -> usize {
+    let mut chars_code = 0;
+    let mut chars_mem = 0;
+    for s in input_strings {
+        let mut new_s = REGEX_SLASH.replace_all(s, "#").to_string();
+        new_s = REGEX_QUOTE.replace_all(&new_s, "#").to_string();
+        new_s = REGEX_HEX.replace_all(&new_s, "#").to_string();
+        chars_code += s.len();
+        chars_mem += new_s.len() - 2;
+    }
+    chars_code - chars_mem
 }
 
 /// Solves AOC 2015 Day 08 Part 2 // ###
-fn solve_part2(_input: &String) -> usize {
-    unimplemented!();
+fn solve_part2(_input_strings: &[String]) -> usize {
+    0
 }
 
 #[cfg(test)]
