@@ -104,35 +104,28 @@ fn process_input_file(filename: &str) -> Vec<Instruction> {
     instructions
 }
 
-/// Processes the regex captures and adds the corresponding Instruction to the output record.
-fn process_regex_captures(caps: fancy_regex::Captures, instructions: &mut Vec<Instruction>) {
-    let min_x = caps[2].parse::<usize>().unwrap();
-    let min_y = caps[3].parse::<usize>().unwrap();
-    let max_x = caps[4].parse::<usize>().unwrap();
-    let max_y = caps[5].parse::<usize>().unwrap();
-    let field = LightField::new(min_x, max_x, min_y, max_y);
-    let instruct = match &caps[1] {
-        "turn on" => Instruction::new(InstructionType::TurnOn, field),
-        "turn off" => Instruction::new(InstructionType::TurnOff, field),
-        "toggle" => Instruction::new(InstructionType::Toggle, field),
-        _ => panic!("Day06 - bad instruction: {}", &caps[1]),
-    };
-    instructions.push(instruct);
-}
-
 /// Solves AOC 2015 Day 06 Part 1 // Determines how many lights are left on in the 1000x1000 light
 /// grid after all instructions have been processed (with all lights starting as off).
 fn solve_part1(instructions: &[Instruction]) -> usize {
+    // Initialise lightgrid as vec (not slice) to use heap instead of stack (prevent stack OF)
     let mut lightgrid: Vec<Vec<bool>> = vec![vec![false; 1000]; 1000];
     for instruct in instructions {
         // Iterate over each element of the field covered by the current instruction
-        for y in instruct.field.min_y..=instruct.field.max_y {
-            for x in instruct.field.min_x..=instruct.field.max_x {
+        for row in lightgrid
+            .iter_mut()
+            .take(instruct.field.max_y + 1)
+            .skip(instruct.field.min_y)
+        {
+            for light in row
+                .iter_mut()
+                .take(instruct.field.max_x + 1)
+                .skip(instruct.field.min_x)
+            {
                 // Update element of the lightgrid
                 match instruct.itype {
-                    InstructionType::TurnOn => lightgrid[y][x] = true,
-                    InstructionType::TurnOff => lightgrid[y][x] = false,
-                    InstructionType::Toggle => lightgrid[y][x] = !lightgrid[y][x],
+                    InstructionType::TurnOn => *light = true,
+                    InstructionType::TurnOff => *light = false,
+                    InstructionType::Toggle => *light = !*light,
                 }
             }
         }
@@ -147,27 +140,51 @@ fn solve_part1(instructions: &[Instruction]) -> usize {
 /// Solves AOC 2015 Day 06 Part 2 // Determines the total brightness of all lights combined after
 /// all instructions have been processed (with all lights starting with brightness 0).
 fn solve_part2(instructions: &[Instruction]) -> u64 {
-    // Initialise lightgrid as vec to use heap and not overflow stack during testing
+    // Initialise lightgrid as vec (not slice) to use heap instead of stack (prevent stack OF)
     let mut lightgrid: Vec<Vec<u64>> = vec![vec![0; 1000]; 1000];
     for instruct in instructions {
         // Iterate over each element of the field covered by the current instruction
-        for y in instruct.field.min_y..=instruct.field.max_y {
-            for x in instruct.field.min_x..=instruct.field.max_x {
+        for row in lightgrid
+            .iter_mut()
+            .take(instruct.field.max_y + 1)
+            .skip(instruct.field.min_y)
+        {
+            for light in row
+                .iter_mut()
+                .take(instruct.field.max_x + 1)
+                .skip(instruct.field.min_x)
+            {
                 // Update element of the lightgrid
                 match instruct.itype {
-                    InstructionType::TurnOn => lightgrid[y][x] += 1,
+                    InstructionType::TurnOn => *light += 1,
                     InstructionType::TurnOff => {
-                        if lightgrid[y][x] > 0 {
-                            lightgrid[y][x] -= 1
+                        if *light > 0 {
+                            *light -= 1
                         }
                     }
-                    InstructionType::Toggle => lightgrid[y][x] += 2,
+                    InstructionType::Toggle => *light += 2,
                 }
             }
         }
     }
     // Calculate the total brightness of all lights combined
     lightgrid.iter().map(|row| row.iter().sum::<u64>()).sum()
+}
+
+/// Processes the regex captures and adds the corresponding Instruction to the output record.
+fn process_regex_captures(caps: fancy_regex::Captures, instructions: &mut Vec<Instruction>) {
+    let min_x = caps[2].parse::<usize>().unwrap();
+    let min_y = caps[3].parse::<usize>().unwrap();
+    let max_x = caps[4].parse::<usize>().unwrap();
+    let max_y = caps[5].parse::<usize>().unwrap();
+    let field = LightField::new(min_x, max_x, min_y, max_y);
+    let instruct = match &caps[1] {
+        "turn on" => Instruction::new(InstructionType::TurnOn, field),
+        "turn off" => Instruction::new(InstructionType::TurnOff, field),
+        "toggle" => Instruction::new(InstructionType::Toggle, field),
+        _ => panic!("Day06 - bad instruction: {}", &caps[1]),
+    };
+    instructions.push(instruct);
 }
 
 #[cfg(test)]
