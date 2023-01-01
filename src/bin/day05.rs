@@ -1,7 +1,7 @@
 use std::fs;
 use std::time::Instant;
 
-use fancy_regex::Regex; // fancy_regex needed for backreferences (not implemented in regex crate)
+use fancy_regex::Regex; // fancy_regex needed for back-references (not implemented in regex crate)
 use lazy_static::lazy_static;
 
 const PROBLEM_NAME: &str = "Doesn't He Have Intern-Elves For This?";
@@ -12,6 +12,8 @@ lazy_static! {
     static ref REGEX_P1_1: Regex = Regex::new(r"^.*[aeiou].*[aeiou].*[aeiou].*$").unwrap();
     static ref REGEX_P1_2: Regex = Regex::new(r"^.*([a-z])\1.*$").unwrap();
     static ref REGEX_P1_3: Regex = Regex::new(r"^.*(ab|cd|pq|xy).*$").unwrap();
+    static ref REGEX_P2_1: Regex = Regex::new(r"^.*([a-z])([a-z]).*\1\2.*$").unwrap();
+    static ref REGEX_P2_2: Regex = Regex::new(r"^.*([a-z]).\1.*$").unwrap();
 }
 
 /// Processes the AOC 2015 Day 05 input file and solves both parts of the problem. Solutions are
@@ -60,7 +62,7 @@ fn process_input_file(filename: &str) -> Vec<String> {
         .collect::<Vec<String>>()
 }
 
-/// Solves AOC 2015 Day 05 Part 1 // Determines how many of the input strings meet the part1
+/// Solves AOC 2015 Day 05 Part 1 // Determines how many of the input strings meet the day05 part1
 /// niceness rules.
 fn solve_part1(input_strings: &[String]) -> usize {
     input_strings
@@ -69,9 +71,13 @@ fn solve_part1(input_strings: &[String]) -> usize {
         .count()
 }
 
-/// Solves AOC 2015 Day 05 Part 2 // ###
-fn solve_part2(_input: &[String]) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 05 Part 2 // Determines how many of the input strings meet the day05 part2
+/// niceness rules.
+fn solve_part2(input_strings: &[String]) -> usize {
+    input_strings
+        .iter()
+        .filter(|s| check_part2_niceness(s))
+        .count()
 }
 
 /// Checks if the candidate string meets the day05 part1 niceness rules.
@@ -79,6 +85,11 @@ fn check_part1_niceness(candidate: &str) -> bool {
     REGEX_P1_1.is_match(candidate).unwrap()
         && REGEX_P1_2.is_match(candidate).unwrap()
         && !REGEX_P1_3.is_match(candidate).unwrap()
+}
+
+/// Checks if the candidate string meets the day05 part2 niceness rules.
+fn check_part2_niceness(candidate: &str) -> bool {
+    REGEX_P2_1.is_match(candidate).unwrap() && REGEX_P2_2.is_match(candidate).unwrap()
 }
 
 #[cfg(test)]
