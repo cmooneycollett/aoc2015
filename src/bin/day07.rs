@@ -24,6 +24,7 @@ lazy_static! {
 }
 
 /// Represents the different operations observed in the problem.
+#[derive(Clone, PartialEq, Eq)]
 enum Operation {
     Value { left: String },
     And { left: String, right: String },
@@ -116,17 +117,32 @@ fn process_input_file(filename: &str) -> HashMap<String, Operation> {
 
 /// Solves AOC 2015 Day 07 Part 1 // Determines the value that is provided to wire "a".
 fn solve_part1(wires: &HashMap<String, Operation>) -> u16 {
-    let mut wire_values: HashMap<String, u16> = HashMap::new();
-    determine_target_wire_value(&String::from("a"), wires, &mut wire_values)
+    determine_target_wire_value(&String::from("a"), wires)
 }
 
-/// Solves AOC 2015 Day 07 Part 2 // ###
-fn solve_part2(_wire_state: &HashMap<String, Operation>) -> u16 {
-    0
+/// Solves AOC 2015 Day 07 Part 2 // Determines the value that is provided to wire "a" after
+/// mapping the initial value of wire "a" to wire "b" and recalculating the wire "a" value.
+fn solve_part2(wires: &HashMap<String, Operation>) -> u16 {
+    // Calculate initial value of wire "a"
+    let wire_a_value = determine_target_wire_value(&String::from("a"), wires);
+    // Update the value provided to wire "b"
+    let mut new_wires = wires.clone();
+    new_wires.insert(String::from("b"), Operation::Value { left: wire_a_value.to_string() });
+    // Recalculate value of wire "a"
+    determine_target_wire_value(&String::from("a"), &new_wires)
 }
 
-/// Determines the value fed into the target wire.
+/// Determines the value provided to the target wire.
 fn determine_target_wire_value(
+    target_wire: &String,
+    wires: &HashMap<String, Operation>,
+) -> u16 {
+    let mut wire_values: HashMap<String, u16> = HashMap::new();
+    determine_target_wire_value_recursive(target_wire, wires, &mut wire_values)
+}
+
+/// Recursive support function used to determine the value provided to the target wire.
+fn determine_target_wire_value_recursive(
     target_wire: &String,
     wires: &HashMap<String, Operation>,
     wire_values: &mut HashMap<String, u16>,
@@ -179,7 +195,7 @@ fn get_term_value(
     if let Ok(value) = term.parse::<u16>() {
         value
     } else {
-        determine_target_wire_value(term, wires, wire_values)
+        determine_target_wire_value_recursive(term, wires, wire_values)
     }
 }
 
