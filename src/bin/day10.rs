@@ -6,6 +6,7 @@ const PROBLEM_INPUT_FILE: &str = "./input/day10.txt";
 const PROBLEM_DAY: u64 = 10;
 
 const PART1_ITERATIONS: u64 = 40;
+const PART2_ITERATIONS: u64 = 50;
 
 /// Processes the AOC 2015 Day 10 input file and solves both parts of the problem. Solutions are
 /// printed to stdout.
@@ -55,9 +56,10 @@ fn solve_part1(seq: &[char]) -> usize {
     apply_lookandsay(seq, PART1_ITERATIONS)
 }
 
-/// Solves AOC 2015 Day 10 Part 2 // ###
-fn solve_part2(_seq: &[char]) -> usize {
-    0
+/// Solves AOC 2015 Day 10 Part 2 // Determines the length of the character sequence after applying
+/// 50 iterations of the "look-and-say" transformation.
+fn solve_part2(seq: &[char]) -> usize {
+    apply_lookandsay(seq, PART2_ITERATIONS)
 }
 
 /// Determines the length of the character sequence resulting from applying N iterations of the
