@@ -1,6 +1,8 @@
 use std::fs;
 use std::time::Instant;
 
+use fancy_regex::Regex;
+
 const PROBLEM_NAME: &str = "JSAbacusFramework.io";
 const PROBLEM_INPUT_FILE: &str = "./input/day12.txt";
 const PROBLEM_DAY: u64 = 12;
@@ -42,19 +44,20 @@ pub fn main() {
 /// Returned value is ###.
 fn process_input_file(filename: &str) -> String {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    raw_input.trim().to_string()
 }
 
-/// Solves AOC 2015 Day 12 Part 1 // ###
-fn solve_part1(_input: &String) -> u64 {
-    unimplemented!();
+/// Solves AOC 2015 Day 12 Part 1 // Determines the sum of all numbers in the given json string.
+fn solve_part1(json: &String) -> i64 {
+    let regex_number = Regex::new(r"(-?\d+)").unwrap();
+    regex_number.find_iter(json).map(|n| n.unwrap().as_str().parse::<i64>().unwrap()).sum::<i64>()
 }
 
 /// Solves AOC 2015 Day 12 Part 2 // ###
-fn solve_part2(_input: &String) -> u64 {
-    unimplemented!();
+fn solve_part2(_json: &String) -> i64 {
+    0
 }
 
 #[cfg(test)]
