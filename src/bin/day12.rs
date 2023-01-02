@@ -2,6 +2,7 @@ use std::fs;
 use std::time::Instant;
 
 use fancy_regex::Regex;
+use serde_json::Value;
 
 const PROBLEM_NAME: &str = "JSAbacusFramework.io";
 const PROBLEM_INPUT_FILE: &str = "./input/day12.txt";
@@ -56,8 +57,35 @@ fn solve_part1(json: &String) -> i64 {
 }
 
 /// Solves AOC 2015 Day 12 Part 2 // ###
-fn solve_part2(_json: &String) -> i64 {
-    0
+fn solve_part2(json: &String) -> i64 {
+    let v: Value = serde_json::from_str(json).unwrap();
+    sum_valid_numbers_in_json_value(&v)
+}
+
+/// Adds up all of the valid numbers in the JSON value. Valid number are those not contained within
+/// JSON objects (or their children) as values that also have the string "red" as a value.
+fn sum_valid_numbers_in_json_value(v: &Value) -> i64 {
+    let mut total = 0;
+    match v {
+        Value::Array(arr) => {
+            for elem in arr {
+                total += sum_valid_numbers_in_json_value(elem);
+            }
+        }
+        Value::Object(map) => {
+            for (_key, elem) in map.iter() {
+                // Exclude invalid object (includes string "red" as a value)
+                if elem.is_string() && elem.as_str().unwrap() == "red" {
+                    total = 0;
+                    break;
+                }
+                total += sum_valid_numbers_in_json_value(elem);
+            }
+        }
+        Value::Number(n) => return n.as_i64().unwrap(),
+        _ => (),
+    }
+    total
 }
 
 #[cfg(test)]
