@@ -17,12 +17,14 @@ lazy_static! {
 
 /// Password struct used to generate valid passwords based on the correctness rules.
 pub struct PasswordGenerator {
-    chars: Vec<char>
+    chars: Vec<char>,
 }
 
 impl PasswordGenerator {
-    pub fn new(chars: &Vec<char>) -> PasswordGenerator {
-        PasswordGenerator { chars: chars.to_vec() }
+    pub fn new(chars: &[char]) -> PasswordGenerator {
+        PasswordGenerator {
+            chars: chars.to_vec(),
+        }
     }
 }
 
@@ -60,7 +62,9 @@ impl Iterator for PasswordGenerator {
             } else {
                 continue;
             }
-            if REGEX_TRIPLE.is_match(&candidate).unwrap() && !REGEX_BAD.is_match(&candidate).unwrap() {
+            if REGEX_TRIPLE.is_match(&candidate).unwrap()
+                && !REGEX_BAD.is_match(&candidate).unwrap()
+            {
                 return Some(candidate);
             }
         }
@@ -110,14 +114,14 @@ fn process_input_file(filename: &str) -> String {
 }
 
 /// Solves AOC 2015 Day 11 Part 1 // Gets the next valid password from the current seed password.
-fn solve_part1(seed: &String) -> String {
+fn solve_part1(seed: &str) -> String {
     let mut password_gen = PasswordGenerator::new(&seed.chars().collect::<Vec<char>>());
     password_gen.next().unwrap()
 }
 
 /// Solves AOC 2015 Day 11 Part 2 // Gets the second next valid password from the current seed
 /// password.
-fn solve_part2(seed: &String) -> String {
+fn solve_part2(seed: &str) -> String {
     let mut password_gen = PasswordGenerator::new(&seed.chars().collect::<Vec<char>>());
     password_gen.next();
     password_gen.next().unwrap()
