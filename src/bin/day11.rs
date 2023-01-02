@@ -16,17 +16,17 @@ lazy_static! {
 }
 
 /// Password struct used to generate valid passwords based on the correctness rules.
-pub struct Password {
+pub struct PasswordGenerator {
     chars: Vec<char>
 }
 
-impl Password {
-    pub fn new(chars: &Vec<char>) -> Password {
-        Password { chars: chars.to_vec() }
+impl PasswordGenerator {
+    pub fn new(chars: &Vec<char>) -> PasswordGenerator {
+        PasswordGenerator { chars: chars.to_vec() }
     }
 }
 
-impl Iterator for Password {
+impl Iterator for PasswordGenerator {
     type Item = String;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -111,13 +111,16 @@ fn process_input_file(filename: &str) -> String {
 
 /// Solves AOC 2015 Day 11 Part 1 // Gets the next valid password from the current seed password.
 fn solve_part1(seed: &String) -> String {
-    let mut password_gen = Password::new(&seed.chars().collect::<Vec<char>>());
+    let mut password_gen = PasswordGenerator::new(&seed.chars().collect::<Vec<char>>());
     password_gen.next().unwrap()
 }
 
-/// Solves AOC 2015 Day 11 Part 2 // ###
-fn solve_part2(_seed: &String) -> String {
-    String::from("-1")
+/// Solves AOC 2015 Day 11 Part 2 // Gets the second next valid password from the current seed
+/// password.
+fn solve_part2(seed: &String) -> String {
+    let mut password_gen = PasswordGenerator::new(&seed.chars().collect::<Vec<char>>());
+    password_gen.next();
+    password_gen.next().unwrap()
 }
 
 #[cfg(test)]
