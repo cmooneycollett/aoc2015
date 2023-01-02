@@ -79,7 +79,7 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 02 input file in the format required by the solver functions.
-/// Returned value is ###.
+/// Returned value is vector of Present structs specified by the input file lines.
 fn process_input_file(filename: &str) -> Vec<Present> {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();

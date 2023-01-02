@@ -42,7 +42,7 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 10 input file in the format required by the solver functions.
-/// Returned value is ###.
+/// Returned value is vector of chars given in the input file.
 fn process_input_file(filename: &str) -> Vec<char> {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
