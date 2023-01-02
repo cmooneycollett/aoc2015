@@ -80,12 +80,10 @@ fn apply_lookandsay(seq: &[char], n: u64) -> usize {
                 }
             }
             // Update the new sequence based on the current run of characters
-            i_right -= 1;
-            seq_new.extend((i_right - i_left + 1).to_string().chars());
+            seq_new.extend((i_right - i_left).to_string().chars());
             seq_new.push(seq_transform[i_left]);
             // Move to next run of characters
-            i_left = i_right + 1;
-            i_right = i_left;
+            i_left = i_right;
         }
         // Update the character sequence
         seq_transform = seq_new;
