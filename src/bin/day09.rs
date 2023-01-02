@@ -98,9 +98,13 @@ fn solve_part1(edges: &HashMap<String, HashMap<String, u64>>) -> u64 {
     panic!("Did not find the minimum distance path!");
 }
 
-/// Solves AOC 2015 Day 09 Part 2 // ###
-fn solve_part2(_edges: &HashMap<String, HashMap<String, u64>>) -> u64 {
-    0
+/// Solves AOC 2015 Day 09 Part 2 // Determines the maximum distance required to visit all nodes in
+/// the graph.
+fn solve_part2(edges: &HashMap<String, HashMap<String, u64>>) -> u64 {
+    if let (_, Some(max_dist)) = find_min_max_distances_to_visit_all_nodes(edges) {
+        return max_dist;
+    }
+    panic!("Did not find the maximum distance path!");
 }
 
 /// Finds the minimum and maximum distances needed to visit all nodes in the graph. Returned value
