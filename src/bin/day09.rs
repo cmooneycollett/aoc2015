@@ -89,11 +89,11 @@ fn add_edges_between_nodes(
     }
 }
 
-/// Solves AOC 2015 Day 09 Part 1 // Determines the minimum distance required to visit all nodes
-/// in the graph.
+/// Solves AOC 2015 Day 09 Part 1 // Determines the minimum distance required to visit all nodes in
+/// the graph.
 fn solve_part1(edges: &HashMap<String, HashMap<String, u64>>) -> u64 {
-    if let (Some(min), _) = find_min_max_distances_to_visit_all_nodes(edges) {
-        return min;
+    if let (Some(min_dist), _) = find_min_max_distances_to_visit_all_nodes(edges) {
+        return min_dist;
     }
     panic!("Did not find the minimum distance path!");
 }
