@@ -5,6 +5,8 @@ const PROBLEM_NAME: &str = "Elves Look, Elves Say";
 const PROBLEM_INPUT_FILE: &str = "./input/day10.txt";
 const PROBLEM_DAY: u64 = 10;
 
+const PART1_ITERATIONS: u64 = 40;
+
 /// Processes the AOC 2015 Day 10 input file and solves both parts of the problem. Solutions are
 /// printed to stdout.
 pub fn main() {
@@ -42,19 +44,51 @@ pub fn main() {
 /// Returned value is ###.
 fn process_input_file(filename: &str) -> Vec<char> {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    raw_input.trim().chars().collect::<Vec<char>>()
 }
 
-/// Solves AOC 2015 Day 10 Part 1 // ###
-fn solve_part1(_input: &[char]) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 10 Part 1 // Determines the length of the character sequence after applying
+/// 40 iterations of the "look-and-say" transformation.
+fn solve_part1(seq: &[char]) -> usize {
+    apply_lookandsay(seq, PART1_ITERATIONS)
 }
 
 /// Solves AOC 2015 Day 10 Part 2 // ###
-fn solve_part2(_input: &[char]) -> usize {
-    unimplemented!();
+fn solve_part2(_seq: &[char]) -> usize {
+    0
+}
+
+/// Determines the length of the character sequence resulting from applying N iterations of the
+/// look-and-say transformation.
+fn apply_lookandsay(seq: &[char], n: u64) -> usize {
+    let mut seq_transform = seq.to_vec();
+    for _ in 0..n {
+        let mut seq_new: Vec<char> = vec![];
+        let mut i_left: usize = 0;
+        let mut i_right: usize = 0;
+        while i_left < seq_transform.len() {
+            // Find end of current run of numbers
+            while i_right < seq_transform.len() {
+                if seq_transform[i_right] == seq_transform[i_left] {
+                    i_right += 1;
+                } else {
+                    break;
+                }
+            }
+            // Update the new sequence based on the current run of characters
+            i_right -= 1;
+            seq_new.extend((i_right - i_left + 1).to_string().chars());
+            seq_new.push(seq_transform[i_left]);
+            // Move to next run of characters
+            i_left = i_right + 1;
+            i_right = i_left;
+        }
+        // Update the character sequence
+        seq_transform = seq_new;
+    }
+    seq_transform.len()
 }
 
 #[cfg(test)]
