@@ -42,7 +42,7 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 12 input file in the format required by the solver functions.
-/// Returned value is ###.
+/// Returned value is the json-formatted string given in the input file.
 fn process_input_file(filename: &str) -> String {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
@@ -51,13 +51,18 @@ fn process_input_file(filename: &str) -> String {
 }
 
 /// Solves AOC 2015 Day 12 Part 1 // Determines the sum of all numbers in the given json string.
-fn solve_part1(json: &String) -> i64 {
+fn solve_part1(json: &str) -> i64 {
     let regex_number = Regex::new(r"(-?\d+)").unwrap();
-    regex_number.find_iter(json).map(|n| n.unwrap().as_str().parse::<i64>().unwrap()).sum::<i64>()
+    regex_number
+        .find_iter(json)
+        .map(|n| n.unwrap().as_str().parse::<i64>().unwrap())
+        .sum::<i64>()
 }
 
-/// Solves AOC 2015 Day 12 Part 2 // ###
-fn solve_part2(json: &String) -> i64 {
+/// Solves AOC 2015 Day 12 Part 2 // Determines the sum of all valid numbers in the given json
+/// string. Valid numbers are those not contained within JSON objects (or their children) as values
+/// that also have the string "red" as a value.
+fn solve_part2(json: &str) -> i64 {
     let v: Value = serde_json::from_str(json).unwrap();
     sum_valid_numbers_in_json_value(&v)
 }
