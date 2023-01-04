@@ -10,6 +10,8 @@ const PROBLEM_NAME: &str = "Knights of the Dinner Table";
 const PROBLEM_INPUT_FILE: &str = "./input/day13.txt";
 const PROBLEM_DAY: u64 = 13;
 
+const PROTAGONIST_NAME: &str = "Mr. Robot";
+
 /// Processes the AOC 2015 Day 13 input file and solves both parts of the problem. Solutions are
 /// printed to stdout.
 pub fn main() {
@@ -54,7 +56,8 @@ fn process_input_file(filename: &str) -> HashMap<String, HashMap<String, i64>> {
     let regex_line = Regex::new(concat!(
         r#"^([[:alpha:]]+) would (gain|lose) (\d+) happiness unit[s]? by "#,
         r#"sitting next to ([[:alpha:]]+).$"#,
-    )).unwrap();
+    ))
+    .unwrap();
     for line in raw_input.lines() {
         let line = line.trim();
         if line.is_empty() {
@@ -71,7 +74,10 @@ fn process_input_file(filename: &str) -> HashMap<String, HashMap<String, i64>> {
             if let Entry::Vacant(e) = edges.entry(name_from.to_string()) {
                 e.insert(HashMap::from([(name_to.to_string(), points)]));
             } else {
-                edges.get_mut(name_from).unwrap().insert(name_to.to_string(), points);
+                edges
+                    .get_mut(name_from)
+                    .unwrap()
+                    .insert(name_to.to_string(), points);
             }
         } else {
             panic!("Bad format input line! // {line}");
@@ -86,9 +92,30 @@ fn solve_part1(edges: &HashMap<String, HashMap<String, i64>>) -> i64 {
     find_max_happiness_delta(edges)
 }
 
-/// Solves AOC 2015 Day 13 Part 2 // ###
-fn solve_part2(_input: &HashMap<String, HashMap<String, i64>>) -> i64 {
-    0
+/// Solves AOC 2015 Day 13 Part 2 // Determines the total change in happiness for the optimal
+/// seating arrangement after the protagonist is added to the guest list.
+fn solve_part2(edges: &HashMap<String, HashMap<String, i64>>) -> i64 {
+    let edges = insert_new_attendee(edges, PROTAGONIST_NAME);
+    find_max_happiness_delta(&edges)
+}
+
+/// Returns the updated edges map after inserting the new attendee with given name.
+fn insert_new_attendee(
+    edges: &HashMap<String, HashMap<String, i64>>,
+    new_name: &str,
+) -> HashMap<String, HashMap<String, i64>> {
+    // Put new person in existing edge records
+    let mut edges = edges.clone();
+    for value in edges.values_mut() {
+        value.insert(new_name.to_string(), 0);
+    }
+    // Insert edge record from the new name
+    let mut new_name_edges: HashMap<String, i64> = HashMap::new();
+    for name in edges.keys() {
+        new_name_edges.insert(name.to_string(), 0);
+    }
+    edges.insert(new_name.to_string(), new_name_edges);
+    edges
 }
 
 /// Determines the maximum change in happiness possible for a seating arrangement of the people
