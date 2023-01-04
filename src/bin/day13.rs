@@ -1,6 +1,10 @@
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fs;
 use std::time::Instant;
+
+use fancy_regex::Regex;
+use itertools::Itertools;
 
 const PROBLEM_NAME: &str = "Knights of the Dinner Table";
 const PROBLEM_INPUT_FILE: &str = "./input/day13.txt";
@@ -44,19 +48,73 @@ pub fn main() {
 /// happiness level if they sit next to each other.
 fn process_input_file(filename: &str) -> HashMap<String, HashMap<String, i64>> {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    let mut edges: HashMap<String, HashMap<String, i64>> = HashMap::new();
+    let regex_line = Regex::new(concat!(
+        r#"^([[:alpha:]]+) would (gain|lose) (\d+) happiness unit[s]? by "#,
+        r#"sitting next to ([[:alpha:]]+).$"#,
+    )).unwrap();
+    for line in raw_input.lines() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        if let Ok(Some(caps)) = regex_line.captures(line) {
+            let name_from = &caps[1];
+            let name_to = &caps[4];
+            let points = match &caps[2] {
+                "gain" => caps[3].parse::<i64>().unwrap(),
+                "lose" => -caps[3].parse::<i64>().unwrap(),
+                _ => panic!("Bad gain/lose specification! // {}", &caps[2]),
+            };
+            if let Entry::Vacant(e) = edges.entry(name_from.to_string()) {
+                e.insert(HashMap::from([(name_to.to_string(), points)]));
+            } else {
+                edges.get_mut(name_from).unwrap().insert(name_to.to_string(), points);
+            }
+        } else {
+            panic!("Bad format input line! // {line}");
+        }
+    }
+    edges
 }
 
-/// Solves AOC 2015 Day 13 Part 1 // ###
-fn solve_part1(_input: &HashMap<String, HashMap<String, i64>>) -> i64 {
-    unimplemented!();
+/// Solves AOC 2015 Day 13 Part 1 // Determines the total change in happiness for the optimal
+/// seating arrangement of the actual guest list.
+fn solve_part1(edges: &HashMap<String, HashMap<String, i64>>) -> i64 {
+    find_max_happiness_delta(edges)
 }
 
 /// Solves AOC 2015 Day 13 Part 2 // ###
 fn solve_part2(_input: &HashMap<String, HashMap<String, i64>>) -> i64 {
-    unimplemented!();
+    0
+}
+
+/// Determines the maximum change in happiness possible for a seating arrangement of the people
+/// named in the given graph edges.
+fn find_max_happiness_delta(edges: &HashMap<String, HashMap<String, i64>>) -> i64 {
+    let mut max_happiness_delta: Option<i64> = None;
+    // Try each possible ordering of the names
+    for order in edges.keys().permutations(edges.len()) {
+        // Calculate the happiness delta from the ordering being checked
+        let mut happiness_delta = 0;
+        for (i, name_from) in order.iter().enumerate() {
+            let name_to = order[(i + 1) % order.len()];
+            happiness_delta += edges.get(*name_from).unwrap().get(name_to).unwrap();
+            happiness_delta += edges.get(name_to).unwrap().get(*name_from).unwrap();
+        }
+        // Check if a new maximum happiness delta has been found
+        if max_happiness_delta.is_none() || happiness_delta > max_happiness_delta.unwrap() {
+            max_happiness_delta = Some(happiness_delta);
+        }
+    }
+    // Return the maximum happiness delta found
+    if let Some(value) = max_happiness_delta {
+        value
+    } else {
+        panic!("Did not find the maximum happiness change!");
+    }
 }
 
 #[cfg(test)]
