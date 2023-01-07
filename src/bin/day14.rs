@@ -1,9 +1,15 @@
 use std::fs;
 use std::time::Instant;
 
+use fancy_regex::Regex;
+
+use aoc2015::utils::bespoke::Reindeer;
+
 const PROBLEM_NAME: &str = "Reindeer Olympics";
 const PROBLEM_INPUT_FILE: &str = "./input/day14.txt";
 const PROBLEM_DAY: u64 = 14;
+
+const RACE_DURATION: u64 = 2503;
 
 /// Processes the AOC 2015 Day 14 input file and solves both parts of the problem. Solutions are
 /// printed to stdout.
@@ -39,22 +45,42 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 14 input file in the format required by the solver functions.
-/// Returned value is ###.
-fn process_input_file(filename: &str) -> String {
+/// Returned value is vector of reindeers as specified in the input file.
+fn process_input_file(filename: &str) -> Vec<Reindeer> {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    let mut reindeers: Vec<Reindeer> = vec![];
+    let regex_line = Regex::new(
+        r"^.* can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds.$",
+    )
+    .unwrap();
+    for line in raw_input.lines() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        if let Ok(Some(caps)) = regex_line.captures(line) {
+            let speed = caps[1].parse::<u64>().unwrap();
+            let duration_travel = caps[2].parse::<u64>().unwrap();
+            let duration_rest = caps[3].parse::<u64>().unwrap();
+            reindeers.push(Reindeer::new(speed, duration_travel, duration_rest));
+        } else {
+            panic!("Bad format input line! // {line}");
+        }
+    }
+    reindeers
 }
 
-/// Solves AOC 2015 Day 14 Part 1 // ###
-fn solve_part1(_input: &String) -> u64 {
-    unimplemented!();
+/// Solves AOC 2015 Day 14 Part 1 // Determines the furthest distance travelled by a reindeer
+/// during the race.
+fn solve_part1(reindeers: &[Reindeer]) -> u64 {
+    reindeers.iter().map(|r| r.distance_travelled_in_period(RACE_DURATION)).max().unwrap()
 }
 
 /// Solves AOC 2015 Day 14 Part 2 // ###
-fn solve_part2(_input: &String) -> u64 {
-    unimplemented!();
+fn solve_part2(_input: &[Reindeer]) -> u64 {
+    0
 }
 
 #[cfg(test)]
