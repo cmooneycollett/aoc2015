@@ -12,9 +12,9 @@ pub struct Reindeer {
 impl Reindeer {
     pub fn new(speed: u64, duration_travel: u64, duration_rest: u64) -> Reindeer {
         Reindeer {
-            speed: speed,
-            duration_travel: duration_travel,
-            duration_rest: duration_rest,
+            speed,
+            duration_travel,
+            duration_rest,
             is_travelling: true,
             seconds_phase: 0,
             distance_travelled: 0,

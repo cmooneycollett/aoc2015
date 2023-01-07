@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fs;
 use std::iter;
 use std::time::Instant;
@@ -76,7 +77,11 @@ fn process_input_file(filename: &str) -> Vec<Reindeer> {
 /// Solves AOC 2015 Day 14 Part 1 // Determines the furthest distance travelled by a reindeer
 /// during the race.
 fn solve_part1(reindeers: &[Reindeer]) -> u64 {
-    reindeers.iter().map(|r| r.distance_travelled_in_period(RACE_DURATION)).max().unwrap()
+    reindeers
+        .iter()
+        .map(|r| r.distance_travelled_in_period(RACE_DURATION))
+        .max()
+        .unwrap()
 }
 
 /// Solves AOC 2015 Day 14 Part 2 // Determines the number of points held by the winning reindeer
@@ -90,11 +95,13 @@ fn solve_part2(reindeers: &[Reindeer]) -> u64 {
         for (i, reindeer) in reindeers.iter_mut().enumerate() {
             let dist = reindeer.advance_one_second();
             // Check if a new maximum distance or tie has been found
-            if dist > max_distance {
-                max_distance = dist;
-                max_i = vec![i];
-            } else if dist == max_distance {
-                max_i.push(i);
+            match dist.cmp(&max_distance) {
+                Ordering::Less => (),
+                Ordering::Equal => max_i.push(i),
+                Ordering::Greater => {
+                    max_distance = dist;
+                    max_i = vec![i];
+                }
             }
         }
         // Award points to the reindeer/s in the lead
