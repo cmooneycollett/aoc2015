@@ -1,4 +1,5 @@
 use std::fs;
+use std::iter;
 use std::time::Instant;
 
 use fancy_regex::Regex;
@@ -78,9 +79,31 @@ fn solve_part1(reindeers: &[Reindeer]) -> u64 {
     reindeers.iter().map(|r| r.distance_travelled_in_period(RACE_DURATION)).max().unwrap()
 }
 
-/// Solves AOC 2015 Day 14 Part 2 // ###
-fn solve_part2(_input: &[Reindeer]) -> u64 {
-    0
+/// Solves AOC 2015 Day 14 Part 2 // Determines the number of points held by the winning reindeer
+/// after the leading reindeer is awarded one point after each second in the race.
+fn solve_part2(reindeers: &[Reindeer]) -> u64 {
+    let mut reindeers = reindeers.to_vec();
+    let mut points: Vec<u64> = iter::repeat(0).take(reindeers.len()).collect();
+    for _ in 0..RACE_DURATION {
+        let mut max_i: Vec<usize> = vec![];
+        let mut max_distance = 0;
+        for (i, reindeer) in reindeers.iter_mut().enumerate() {
+            let dist = reindeer.advance_one_second();
+            // Check if a new maximum distance or tie has been found
+            if dist > max_distance {
+                max_distance = dist;
+                max_i = vec![i];
+            } else if dist == max_distance {
+                max_i.push(i);
+            }
+        }
+        // Award points to the reindeer/s in the lead
+        for i in max_i {
+            points[i] += 1;
+        }
+    }
+    // Return the highest points total accrued by a reindeer during the race
+    points.into_iter().max().unwrap()
 }
 
 #[cfg(test)]

@@ -4,14 +4,20 @@ pub struct Reindeer {
     speed: u64,           // km/s
     duration_travel: u64, // s
     duration_rest: u64,   // s
+    is_travelling: bool,
+    seconds_phase: u64,      // s
+    distance_travelled: u64, // km
 }
 
 impl Reindeer {
     pub fn new(speed: u64, duration_travel: u64, duration_rest: u64) -> Reindeer {
         Reindeer {
-            speed,
-            duration_travel,
-            duration_rest,
+            speed: speed,
+            duration_travel: duration_travel,
+            duration_rest: duration_rest,
+            is_travelling: true,
+            seconds_phase: 0,
+            distance_travelled: 0,
         }
     }
 
@@ -29,5 +35,25 @@ impl Reindeer {
             distance_travelled += self.speed * seconds_spare;
         }
         distance_travelled
+    }
+
+    /// Advances the reindeer by one second and returns the total distance is has travelled.
+    pub fn advance_one_second(&mut self) -> u64 {
+        if self.is_travelling {
+            self.seconds_phase += 1;
+            self.distance_travelled += self.speed;
+            if self.seconds_phase == self.duration_travel {
+                self.seconds_phase = 0;
+                self.is_travelling = false;
+            }
+            return self.distance_travelled;
+        }
+        // Reindeer is at rest
+        self.seconds_phase += 1;
+        if self.seconds_phase == self.duration_rest {
+            self.seconds_phase = 0;
+            self.is_travelling = true;
+        }
+        self.distance_travelled
     }
 }
