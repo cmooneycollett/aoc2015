@@ -1,5 +1,5 @@
-use std::time::Instant;
 use std::fs;
+use std::time::Instant;
 
 use fancy_regex::{Captures, Regex};
 
@@ -71,19 +71,24 @@ fn process_input_file(filename: &str) -> Vec<Ingredient> {
     ingredients
 }
 
-/// Solves AOC 2015 Day 15 Part 1 // Finds the total score of the higest-scoring cooking that can be
+/// Solves AOC 2015 Day 15 Part 1 // Finds the total score of the higest-scoring cookie that can be
 /// made within the quantity limit.
 fn solve_part1(ingredients: &[Ingredient]) -> i64 {
     if let Some(score) = find_highest_cookie_score(ingredients, false) {
-        return score;
+        score
     } else {
         panic!("Did not find the highest cookie score without calorie checking!");
     }
 }
 
-/// Solves AOC 2015 Day 15 Part 2 // ###
-fn solve_part2(_ingredients: &[Ingredient]) -> i64 {
-    0
+/// Solves AOC 2015 Day 15 Part 2 // Finds the total score of the highest-scoring cookie with the
+/// target calorie count that can be made from the ingredients.
+fn solve_part2(ingredients: &[Ingredient]) -> i64 {
+    if let Some(score) = find_highest_cookie_score(ingredients, true) {
+        score
+    } else {
+        panic!("Did not find the highest cookie score with calorie checking!");
+    }
 }
 
 /// Parses the given regex captures into an ingredient. Assumption is that the captures result from
@@ -137,9 +142,9 @@ fn find_highest_cookie_score_recursive(
 
 /// Calculates the current cookie score and updates the max score if a new maximum cookie score is
 /// found. Calorie checking is only performed to determine a valid cookie if check_calories is set
-/// to true;
+/// to true.
 fn calculate_cookie_score(
-    quantities: &Vec<i64>,
+    quantities: &[i64],
     ingredients: &[Ingredient],
     check_calories: bool,
     max_score: &mut Option<i64>,
@@ -181,7 +186,6 @@ fn calculate_cookie_score(
         }
     }
     *max_score = Some(cookie_score);
-    return;
 }
 
 #[cfg(test)]
