@@ -1,4 +1,5 @@
-/// Models a reindeer as described in the AOC 2015 Day 14 problem.
+/// Models a reindeer as described in the AOC 2015 Day 14 problem
+/// (<https://adventofcode.com/2015/day/14>).
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Reindeer {
     speed: u64,           // km/s

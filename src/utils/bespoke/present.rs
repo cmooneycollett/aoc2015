@@ -1,5 +1,5 @@
 /// Represents a present box (rectangular prism) characterised by its length, width and height
-/// (measures in feet). Used in the AOC 2015 Day 2
+/// (measures in feet). Used in the AOC 2015 Day 2 problem (<https://adventofcode.com/2015/day/2>).
 pub struct Present {
     length: u64,
     width: u64,
