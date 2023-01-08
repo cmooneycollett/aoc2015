@@ -129,23 +129,41 @@ fn process_input_file(filename: &str) -> Vec<HashMap<Category, u64>> {
 /// protagonist.
 fn solve_part1(aunts: &[HashMap<Category, u64>]) -> usize {
     for (i, candidate) in aunts.iter().enumerate() {
-        if check_aunt_sue(candidate) {
+        if check_aunt_sue(candidate, false) {
             return i + 1;
         }
     }
     panic!("Did not find the gift-giving Aunt Sue!");
 }
 
-/// Solves AOC 2015 Day 16 Part 2 // ###
-fn solve_part2(_aunts: &[HashMap<Category, u64>]) -> usize {
-    0
+/// Solves AOC 2015 Day 16 Part 2 // Determines the number of the Aunt Sue that gave the gift to the
+/// protagonist with range checks on some Aunt Sue item quantities.
+fn solve_part2(aunts: &[HashMap<Category, u64>]) -> usize {
+    for (i, candidate) in aunts.iter().enumerate() {
+        if check_aunt_sue(candidate, true) {
+            return i + 1;
+        }
+    }
+    panic!("Did not find the gift-giving Aunt Sue!");
 }
 
 /// Checks if the candidate Aunt Sue quantities align with the expected Aunt Sue items based on the
 /// MFCSAM print-out.
-fn check_aunt_sue(candidate: &HashMap<Category, u64>) -> bool {
+fn check_aunt_sue(candidate: &HashMap<Category, u64>, range_check: bool) -> bool {
     for (category, quantity) in candidate.iter() {
-        if AUNT_SUE_ITEMS.get(category).unwrap() != quantity {
+        let quantity_actual = AUNT_SUE_ITEMS.get(category).unwrap();
+        let valid = {
+            if !range_check {
+                quantity == quantity_actual
+            } else {
+                match category {
+                    Category::Cats | Category::Trees => quantity > quantity_actual,
+                    Category::Goldfish | Category::Pomeranians => quantity < quantity_actual,
+                    _ => quantity == quantity_actual,
+                }
+            }
+        };
+        if !valid {
             return false;
         }
     }
