@@ -9,7 +9,13 @@ pub struct Ingredient {
 }
 
 impl Ingredient {
-    pub fn new(capacity: i64, durability: i64, flavour: i64, texture: i64, calories: i64) -> Ingredient {
+    pub fn new(
+        capacity: i64,
+        durability: i64,
+        flavour: i64,
+        texture: i64,
+        calories: i64,
+    ) -> Ingredient {
         Ingredient {
             capacity,
             durability,
@@ -44,4 +50,3 @@ impl Ingredient {
         self.calories
     }
 }
-
