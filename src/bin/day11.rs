@@ -105,7 +105,7 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 11 input file into the format required by the solver functions.
-/// Returned value is ###.
+/// Returned value is password seed string given in input file.
 fn process_input_file(filename: &str) -> String {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
