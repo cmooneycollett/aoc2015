@@ -61,7 +61,7 @@ pub fn main() {
     println!("==================================================");
 }
 
-/// Processes the AOC 2015 Day 07 input file in the format required by the solver functions.
+/// Processes the AOC 2015 Day 07 input file into the format required by the solver functions.
 /// Returned value is hashmap mapping each wire to the operation providing the value feeding into
 /// the wire.
 fn process_input_file(filename: &str) -> HashMap<String, Operation> {

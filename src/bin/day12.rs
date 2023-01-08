@@ -41,7 +41,7 @@ pub fn main() {
     println!("==================================================");
 }
 
-/// Processes the AOC 2015 Day 12 input file in the format required by the solver functions.
+/// Processes the AOC 2015 Day 12 input file into the format required by the solver functions.
 /// Returned value is the json-formatted string given in the input file.
 fn process_input_file(filename: &str) -> String {
     // Read contents of problem input file

@@ -45,7 +45,7 @@ pub fn main() {
     println!("==================================================");
 }
 
-/// Processes the AOC 2015 Day 13 input file in the format required by the solver functions.
+/// Processes the AOC 2015 Day 13 input file into the format required by the solver functions.
 /// Returned value is hashmap mapping each person to other people and the associated change in
 /// happiness level if they sit next to each other.
 fn process_input_file(filename: &str) -> HashMap<String, HashMap<String, i64>> {

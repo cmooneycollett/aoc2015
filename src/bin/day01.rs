@@ -38,7 +38,7 @@ pub fn main() {
     println!("==================================================");
 }
 
-/// Processes the AOC 2015 Day 1 input file in the format required by the solver functions.
+/// Processes the AOC 2015 Day 1 input file into the format required by the solver functions.
 /// Returned value is vector of +1 (open parenthesis: '(') or -1 (closed parenthesis: ')') values
 /// determined by the chars given in the input file.
 fn process_input_file(filename: &str) -> Vec<i64> {

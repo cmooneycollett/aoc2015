@@ -43,7 +43,7 @@ pub fn main() {
     println!("==================================================");
 }
 
-/// Processes the AOC 2015 Day 09 input file in the format required by the solver functions.
+/// Processes the AOC 2015 Day 09 input file into the format required by the solver functions.
 /// Returned value is hashmap mapping edge "from" nodes to edge "to" nodes and the associated edge
 /// weight.
 fn process_input_file(filename: &str) -> HashMap<String, HashMap<String, u64>> {

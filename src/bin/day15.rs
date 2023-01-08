@@ -45,7 +45,7 @@ pub fn main() {
     println!("==================================================");
 }
 
-/// Processes the AOC 2015 Day 15 input file in the format required by the solver functions.
+/// Processes the AOC 2015 Day 15 input file into the format required by the solver functions.
 /// Returned value is vector of ingredients described in the inpu t file.
 fn process_input_file(filename: &str) -> Vec<Ingredient> {
     // Read contents of problem input file

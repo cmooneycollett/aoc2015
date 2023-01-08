@@ -49,7 +49,7 @@ pub fn main() {
     println!("==================================================");
 }
 
-/// Processes the AOC 2015 Day 05 input file in the format required by the solver functions.
+/// Processes the AOC 2015 Day 05 input file into the format required by the solver functions.
 /// Returned value is vector of strings given as lines in the input file.
 fn process_input_file(filename: &str) -> Vec<String> {
     // Read contents of problem input file
