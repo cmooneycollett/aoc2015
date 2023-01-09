@@ -63,9 +63,11 @@ fn solve_part1(values: &[u64]) -> u64 {
     total
 }
 
-/// Solves AOC 2015 Day 17 Part 2 // ###
-fn solve_part2(_values: &[u64]) -> u64 {
-    0
+/// Solves AOC 2015 Day 17 Part 2 // Finds the number of ways that the target total can be reached
+/// using the minimum possible number of terms from the given values.
+fn solve_part2(values: &[u64]) -> u64 {
+    let (_, min_terms_count) = find_subsets_adding_to_total(values);
+    min_terms_count
 }
 
 /// Finds the total number of subsets of the given values that add up to the target total, and the
@@ -90,6 +92,7 @@ fn find_subsets_adding_to_total_recursive(
 ) {
     match running_total.cmp(&TARGET_TOTAL) {
         Ordering::Less => {
+            // Stop if all values have been considered without reaching the target total exactly
             if i >= values.len() {
                 return;
             }
@@ -117,7 +120,7 @@ fn find_subsets_adding_to_total_recursive(
                 *container_counts.get_mut(&num_terms).unwrap() += 1;
             }
         }
-        Ordering::Greater => return,
+        Ordering::Greater => (),
     }
 }
 
