@@ -14,7 +14,7 @@ dependencies = [
 [[package]]
 name = "aoc-utils"
 version = "0.1.0"
-source = "git+https://github.com/misfits42/aoc-utils?branch=main#1d80acf233b5bce54ea880631ebdf644daa2932a"
+source = "git+https://github.com/misfits42/aoc-utils?branch=main#a1d80be14ac45939b15d031eb5fc1babc6b3d4eb"
 
 [[package]]
 name = "aoc2015"
@@ -136,9 +136,9 @@ checksum = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d"
 
 [[package]]
 name = "regex"
-version = "1.7.0"
+version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e076559ef8e241f2ae3479e36f97bd5741c0330689e217ad51ce2c76808b868a"
+checksum = "48aaa5748ba571fb95cd2c85c09f629215d3a6ece942baa100950af03a34f733"
 dependencies = [
  "aho-corasick",
  "memchr",
