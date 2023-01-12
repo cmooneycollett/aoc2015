@@ -2,11 +2,22 @@ use std::collections::HashMap;
 use std::fs;
 use std::time::Instant;
 
+use lazy_static::lazy_static;
+
 use aoc_utils::cartography::Point2D;
 
 const PROBLEM_NAME: &str = "Like a GIF For Your Yard";
 const PROBLEM_INPUT_FILE: &str = "./input/day18.txt";
 const PROBLEM_DAY: u64 = 18;
+
+lazy_static! {
+    static ref LIGHTS_STUCK_ON: Vec<Point2D> = vec![
+        Point2D::new(0, 0),
+        Point2D::new(99, 0),
+        Point2D::new(0, 99),
+        Point2D::new(99, 99),
+    ];
+}
 
 /// Processes the AOC 2015 Day 18 input file and solves both parts of the problem. Solutions are
 /// printed to stdout.
@@ -69,48 +80,61 @@ fn solve_part1(lightgrid: &HashMap<Point2D, bool>) -> usize {
     new_lightgrid.values().filter(|elem| **elem).count()
 }
 
-/// Solves AOC 2015 Day 18 Part 2 // ###
-fn solve_part2(_lightgrid: &HashMap<Point2D, bool>) -> usize {
-    0
+/// Solves AOC 2015 Day 18 Part 2 // Determines the number of lights that are left on after 100
+/// steps from the initial configuration of the lightgrid, with the four corner lights stuck in the
+/// "on" position.
+fn solve_part2(lightgrid: &HashMap<Point2D, bool>) -> usize {
+    let new_lightgrid = simulate_lightgrid(lightgrid, 100, &LIGHTS_STUCK_ON);
+    new_lightgrid.values().filter(|elem| **elem).count()
 }
 
 /// Simulates the given number of steps from the initial lightgrid state and returns the resulting
 /// lightgrid.
-fn simulate_lightgrid(lightgrid: &HashMap<Point2D, bool>, steps: u64, stuck_on: &[Point2D]) -> HashMap<Point2D, bool> {
+fn simulate_lightgrid(
+    lightgrid: &HashMap<Point2D, bool>,
+    steps: u64,
+    stuck_on: &[Point2D],
+) -> HashMap<Point2D, bool> {
+    // Initialise the lightgrid with the stuck lights set to on
     let mut old_lightgrid = lightgrid.clone();
+    for stuck_loc in stuck_on {
+        old_lightgrid.insert(*stuck_loc, true);
+    }
     for _ in 0..steps {
+        // Initialise the new lightgrid with the stuck lights set to on
         let mut new_lightgrid: HashMap<Point2D, bool> = HashMap::new();
-        for loc in old_lightgrid.keys() {
-            let mut count_on = 0;
-            for sloc in loc.get_surrounding_points() {
-                if *old_lightgrid.get(&sloc).unwrap_or(&false) {
-                    count_on += 1;
-                }
-            }
-            let new_state = match old_lightgrid.get(loc).unwrap() {
-                true => {
-                    if count_on == 2 || count_on == 3 {
-                        true
-                    } else {
-                        false
-                    }
-                }
-                false => {
-                    if count_on == 3 {
-                        true
-                    } else {
-                        false
-                    }
-                }
-            };
-            new_lightgrid.insert(*loc, new_state);
-        }
         for stuck_loc in stuck_on {
             new_lightgrid.insert(*stuck_loc, true);
         }
+        for loc in old_lightgrid.keys() {
+            // Skip the stuck lights since they have already been added to the new lightgrid
+            if new_lightgrid.contains_key(loc) {
+                continue;
+            }
+            let new_state = determine_new_state(loc, &old_lightgrid);
+            new_lightgrid.insert(*loc, new_state);
+        }
+        // Update the old lightgrid for the next step
         old_lightgrid = new_lightgrid;
     }
     old_lightgrid
+}
+
+/// Determines the new state for the light at the given location in the next step lightgrid.
+fn determine_new_state(loc: &Point2D, old_lightgrid: &HashMap<Point2D, bool>) -> bool {
+    // Count the number of surrounding lights that are on
+    let mut count_on = 0;
+    for sloc in loc.get_surrounding_points() {
+        if *old_lightgrid.get(&sloc).unwrap_or(&false) {
+            count_on += 1;
+        }
+    }
+    // Determine the new state based on current state and neighbour-on count
+    let new_state = match old_lightgrid.get(loc).unwrap() {
+        true => count_on == 2 || count_on == 3,
+        false => count_on == 3,
+    };
+    new_state
 }
 
 #[cfg(test)]
