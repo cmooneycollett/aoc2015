@@ -42,22 +42,75 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 18 input file into the format required by the solver functions.
-/// Returned value is ###.
+/// Returned value is hashmap of lightgrid locations and initial light state (true: on, false: off).
 fn process_input_file(filename: &str) -> HashMap<Point2D, bool> {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    let mut lightgrid: HashMap<Point2D, bool> = HashMap::new();
+    for (y, row) in raw_input.trim().lines().enumerate() {
+        for (x, elem) in row.chars().enumerate() {
+            let loc = Point2D::new(x as i64, y as i64);
+            let state = match elem {
+                '#' => true,
+                '.' => false,
+                _ => panic!("Invalid input file char! // {elem}"),
+            };
+            lightgrid.insert(loc, state);
+        }
+    }
+    lightgrid
 }
 
-/// Solves AOC 2015 Day 18 Part 1 // ###
-fn solve_part1(_lightgrid: &HashMap<Point2D, bool>) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 18 Part 1 // Determines the number of lights that are left on after 100
+/// steps from the initial configuration of the lightgrid.
+fn solve_part1(lightgrid: &HashMap<Point2D, bool>) -> usize {
+    let new_lightgrid = simulate_lightgrid(lightgrid, 100, &[]);
+    new_lightgrid.values().filter(|elem| **elem).count()
 }
 
 /// Solves AOC 2015 Day 18 Part 2 // ###
 fn solve_part2(_lightgrid: &HashMap<Point2D, bool>) -> usize {
-    unimplemented!();
+    0
+}
+
+/// Simulates the given number of steps from the initial lightgrid state and returns the resulting
+/// lightgrid.
+fn simulate_lightgrid(lightgrid: &HashMap<Point2D, bool>, steps: u64, stuck_on: &[Point2D]) -> HashMap<Point2D, bool> {
+    let mut old_lightgrid = lightgrid.clone();
+    for _ in 0..steps {
+        let mut new_lightgrid: HashMap<Point2D, bool> = HashMap::new();
+        for loc in old_lightgrid.keys() {
+            let mut count_on = 0;
+            for sloc in loc.get_surrounding_points() {
+                if *old_lightgrid.get(&sloc).unwrap_or(&false) {
+                    count_on += 1;
+                }
+            }
+            let new_state = match old_lightgrid.get(loc).unwrap() {
+                true => {
+                    if count_on == 2 || count_on == 3 {
+                        true
+                    } else {
+                        false
+                    }
+                }
+                false => {
+                    if count_on == 3 {
+                        true
+                    } else {
+                        false
+                    }
+                }
+            };
+            new_lightgrid.insert(*loc, new_state);
+        }
+        for stuck_loc in stuck_on {
+            new_lightgrid.insert(*stuck_loc, true);
+        }
+        old_lightgrid = new_lightgrid;
+    }
+    old_lightgrid
 }
 
 #[cfg(test)]
