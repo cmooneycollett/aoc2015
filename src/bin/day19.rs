@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use std::collections::hash_map::Entry;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::time::Instant;
 
@@ -47,14 +48,58 @@ pub fn main() {
 /// molecures, and the target molecule.
 fn process_input_file(filename: &str) -> ProblemInput {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    let mut replacements: HashMap<String, Vec<String>> = HashMap::new();
+    let mut split = raw_input.trim().split("\n\n");
+    // Process the replacement options
+    for line in split.next().unwrap().lines() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        let elems = line.split(" => ").collect::<Vec<&str>>();
+        if let Entry::Vacant(e) = replacements.entry(elems[0].to_string()) {
+            e.insert(vec![elems[1].to_string()]);
+        } else {
+            replacements
+                .get_mut(elems[0])
+                .unwrap()
+                .push(elems[1].to_string());
+        }
+    }
+    // Extract the medicine molecule
+    let med_molecule = split.next().unwrap().to_string();
+    (replacements, med_molecule)
 }
 
-/// Solves AOC 2015 Day 19 Part 1 // ###
-fn solve_part1(_input: &ProblemInput) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 19 Part 1 // Determines the number of distinct molecules that can be created
+/// after all the possible ways to conduct one replacement are tried on the medicine molecule.
+fn solve_part1(input: &ProblemInput) -> usize {
+    let (replacements, med_molecule) = input;
+    let mut observed: HashSet<String> = HashSet::new();
+    for (input_str, outputs) in replacements.iter() {
+        let mut i: usize = 0;
+        loop {
+            // Calculate window bounds and break if the window is outside of the med molecule
+            let left = i;
+            let right = i + input_str.len();
+            if right > med_molecule.len() {
+                break;
+            }
+            // Check if the window into med molecule matches the left-hand side of replacement
+            if &med_molecule[left..right] == input_str {
+                for rep in outputs.iter() {
+                    let mut result_molecule = med_molecule.to_string();
+                    result_molecule.replace_range(left..right, rep);
+                    observed.insert(result_molecule);
+                }
+            }
+            // Advance the window one index to the right
+            i += 1;
+        }
+    }
+    observed.len()
 }
 
 /// Solves AOC 2015 Day 19 Part 2 // ###
