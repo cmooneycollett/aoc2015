@@ -40,21 +40,35 @@ pub fn main() {
 
 /// Processes the AOC 2015 Day 20 input file into the format required by the solver functions.
 /// Returned value is integer value given in the input file.
-fn process_input_file(filename: &str) -> u64 {
+fn process_input_file(filename: &str) -> usize {
     // Read contents of problem input file
     let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    raw_input.trim().parse::<u64>().unwrap()
+    raw_input.trim().parse::<usize>().unwrap()
 }
 
-/// Solves AOC 2015 Day 20 Part 1 // ###
-fn solve_part1(_target: &u64) -> u64 {
-    unimplemented!();
+/// Solves AOC 2015 Day 20 Part 1 // Determines the lowest number house to get at least as many
+/// presents as the target value. (elves delivering 10 presents to each house that is a multiple
+/// of the elf number).
+fn solve_part1(target: &usize) -> usize {
+    let target = *target;
+    let mut houses: Vec<usize> = vec![0; target];
+    for elf in 1..=target {
+        for i in (elf..=target).step_by(elf) {
+            houses[i - 1] += elf * 10;
+            if i == elf && houses[i - 1] >= target {
+                return i;
+            }
+        }
+    }
+    panic!("Should not get here!");
 }
 
-/// Solves AOC 2015 Day 20 Part 2 // ###
-fn solve_part2(_target: &u64) -> u64 {
-    unimplemented!();
+/// Solves AOC 2015 Day 20 Part 2 // Determines the lowest number house to get at least as many
+/// presents as the target value, with each elf visited 50 houses (including their starting house)
+/// and delivering 11 presents to each house.
+fn solve_part2(_target: &usize) -> usize {
+    0
 }
 
 #[cfg(test)]
