@@ -67,8 +67,18 @@ fn solve_part1(target: &usize) -> usize {
 /// Solves AOC 2015 Day 20 Part 2 // Determines the lowest number house to get at least as many
 /// presents as the target value, with each elf visited 50 houses (including their starting house)
 /// and delivering 11 presents to each house.
-fn solve_part2(_target: &usize) -> usize {
-    0
+fn solve_part2(target: &usize) -> usize {
+    let target = *target;
+    let mut houses: Vec<usize> = vec![0; target];
+    for elf in 1..target {
+        for i in (elf..=target).step_by(elf).take(50) {
+            houses[i - 1] += elf * 11;
+            if i == elf && houses[i - 1] >= target {
+                return i;
+            }
+        }
+    }
+    panic!("Should not get here!");
 }
 
 #[cfg(test)]
