@@ -102,9 +102,70 @@ fn solve_part1(input: &ProblemInput) -> usize {
     observed.len()
 }
 
-/// Solves AOC 2015 Day 19 Part 2 // ###
-fn solve_part2(_input: &ProblemInput) -> usize {
-    unimplemented!();
+/// Solves AOC 2015 Day 19 Part 2 // Determines the minimum number of steps required to generate the
+/// medicine molecule from a single electron "e".
+fn solve_part2(input: &ProblemInput) -> u64 {
+    let (replacements, med_molecule) = input;
+    let mut process_molecule = med_molecule.to_string();
+    let rev_reps = reverse_replacements_map(replacements);
+    let mut steps: u64 = 0;
+    loop {
+        // Break if we have reached the end state for the molecule reduction
+        if process_molecule == "e" {
+            break;
+        }
+        // Find the longest replacement string that occurs in the process molecule
+        let mut longest_rep: Option<&str> = None;
+        for rep in rev_reps.keys() {
+            if process_molecule.contains(rep)
+                && (longest_rep.is_none() || rep.len() > longest_rep.unwrap().len())
+            {
+                longest_rep = Some(rep);
+            }
+        }
+        // Replace all non-overlapping instances of the longest replacement string in process mol
+        let to_str = rev_reps.get(longest_rep.unwrap()).unwrap();
+        steps += reduce_molecule(longest_rep.unwrap(), to_str, &mut process_molecule);
+    }
+    steps
+}
+
+/// Reduces the process molecule by replacing all non-overlapping instances of the longest rep with
+/// the to_str. Returns the number of replacements conducted.
+fn reduce_molecule(longest_rep: &str, to_str: &str, process_molecule: &mut String) -> u64 {
+    let mut i: usize = 0;
+    let mut steps: u64 = 0;
+    loop {
+        // Calculate the left and right limits of the window and break if window at end of mol
+        let left = i;
+        let right = i + longest_rep.len();
+        if right > process_molecule.len() {
+            break;
+        }
+        // Replace occurrence if window matches and move window
+        if &process_molecule[left..right] == longest_rep {
+            steps += 1;
+            process_molecule.replace_range(left..right, to_str);
+            i += to_str.len();
+        } else {
+            i += 1;
+        }
+    }
+    steps
+}
+
+/// Switches around the replacement mapping, so the output molecules are mapped to their input
+/// molecule in a one-to-one relationship.
+fn reverse_replacements_map(
+    replacements: &HashMap<String, Vec<String>>,
+) -> HashMap<String, String> {
+    let mut output: HashMap<String, String> = HashMap::new();
+    for (input, outputs) in replacements.iter() {
+        for rep in outputs.iter() {
+            output.insert(rep.to_string(), input.to_string());
+        }
+    }
+    output
 }
 
 #[cfg(test)]
