@@ -1,9 +1,45 @@
 use std::fs;
 use std::time::Instant;
 
+use fancy_regex::Regex;
+use itertools::{iproduct, Itertools};
+use lazy_static::lazy_static;
+
+use aoc2015::utils::bespoke::{RpgEntity, RpgItem};
+
 const PROBLEM_NAME: &str = "RPG Simulator 20XX";
 const PROBLEM_INPUT_FILE: &str = "./input/day21.txt";
 const PROBLEM_DAY: u64 = 21;
+
+const PLAYER_START_HEALTH: i64 = 100;
+
+lazy_static! {
+    /// Weapons held by store
+    static ref WEAPONS: Vec<RpgItem> = vec![
+        RpgItem::new(8, 4, 0),  // Dagger
+        RpgItem::new(10, 5, 0), // Shortsword
+        RpgItem::new(25, 6, 0), // Warhammer
+        RpgItem::new(40, 7, 0), // Longsword
+        RpgItem::new(74, 8, 0), // Greataxe
+    ];
+    /// Armour held by store
+    static ref ARMOUR: Vec<RpgItem> = vec![
+        RpgItem::new(13, 0, 1),     // Leather
+        RpgItem::new(31, 0, 2),     // Chainmail
+        RpgItem::new(53, 0, 3),     // Splitmail
+        RpgItem::new(75, 0, 4),     // Bandedmail
+        RpgItem::new(102, 0, 5),    // Platemail
+    ];
+    /// Rings held by store
+    static ref RINGS: Vec<RpgItem> = vec![
+        RpgItem::new(25, 1, 0),     // Damage +1
+        RpgItem::new(50, 2, 0),     // Damage +2
+        RpgItem::new(100, 3, 0),    // Damage +3
+        RpgItem::new(20, 0, 1),     // Defence +1
+        RpgItem::new(40, 0, 2),     // Defence +2
+        RpgItem::new(80, 0, 3),     // Defence +3
+    ];
+}
 
 /// Processes the AOC 2015 Day 21 input file and solves both parts of the problem. Solutions are
 /// printed to stdout.
@@ -39,22 +75,58 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 21 input file into the format required by the solver functions.
-/// Returned value is ###.
-fn process_input_file(filename: &str) -> String {
+/// Returned value is the RpgEntity representing the boss entity specified in the input file.
+fn process_input_file(filename: &str) -> RpgEntity {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    let input_regex = Regex::new(r"Hit Points: (\d+)\nDamage: (\d+)\nArmor: (\d+)").unwrap();
+    if let Ok(Some(caps)) = input_regex.captures(&raw_input) {
+        let health = caps[1].parse::<i64>().unwrap();
+        let damage = caps[2].parse::<i64>().unwrap();
+        let armour = caps[3].parse::<i64>().unwrap();
+        let enemy = RpgEntity::new(health, damage, armour);
+        return enemy;
+    }
+    panic!("Invalid input file format!");
 }
 
-/// Solves AOC 2015 Day 21 Part 1 // ###
-fn solve_part1(_input: &String) -> u64 {
-    unimplemented!();
+/// Solves AOC 2015 Day 21 Part 1 // Determines the least amount of gold the player can sped and
+/// still win the fight.
+fn solve_part1(enemy: &RpgEntity) -> i64 {
+    let mut least_gold: Option<i64> = None;
+    for (q_armour, q_rings) in iproduct!(0..=1, 0..=2) {
+        for weapon_held in WEAPONS.iter() {
+            for armour_held in ARMOUR.iter().combinations(q_armour) {
+                for rings_held in RINGS.iter().combinations(q_rings) {
+                    let mut cost = 0;
+                    cost += weapon_held.cost();
+                    cost += armour_held.iter().map(|elem| elem.cost()).sum::<i64>();
+                    cost += rings_held.iter().map(|elem| elem.cost()).sum::<i64>();
+                    let damage = weapon_held.damage() + rings_held.iter().map(|elem| elem.damage()).sum::<i64>();
+                    let armour = armour_held.iter().map(|elem| elem.armour()).sum::<i64>() +
+                        rings_held.iter().map(|elem| elem.armour()).sum::<i64>();
+                    // Create player
+                    let player = RpgEntity::new(PLAYER_START_HEALTH, damage, armour);
+                    // Calculate turns to defeat
+                    let player_turns = player.turns_to_defeat(enemy);
+                    let enemy_turns = enemy.turns_to_defeat(&player);
+                    if player_turns <= enemy_turns && (least_gold.is_none() || cost < least_gold.unwrap()) {
+                        least_gold = Some(cost);
+                    }
+                }
+            }
+        }
+    }
+    if let Some(cost) = least_gold {
+        return cost;
+    }
+    panic!("Did not find the least amount of gold with player win outcome!");
 }
 
 /// Solves AOC 2015 Day 21 Part 2 // ###
-fn solve_part2(_input: &String) -> u64 {
-    unimplemented!();
+fn solve_part2(_enemy: &RpgEntity) -> u64 {
+    0
 }
 
 #[cfg(test)]
