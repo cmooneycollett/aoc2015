@@ -91,7 +91,7 @@ fn process_input_file(filename: &str) -> RpgEntity {
     panic!("Invalid input file format!");
 }
 
-/// Solves AOC 2015 Day 21 Part 1 // Determines the least amount of gold the player can sped and
+/// Solves AOC 2015 Day 21 Part 1 // Determines the least amount of gold the player can spend and
 /// still win the fight.
 fn solve_part1(enemy: &RpgEntity) -> i64 {
     let mut least_gold: Option<i64> = None;
@@ -103,15 +103,18 @@ fn solve_part1(enemy: &RpgEntity) -> i64 {
                     cost += weapon_held.cost();
                     cost += armour_held.iter().map(|elem| elem.cost()).sum::<i64>();
                     cost += rings_held.iter().map(|elem| elem.cost()).sum::<i64>();
-                    let damage = weapon_held.damage() + rings_held.iter().map(|elem| elem.damage()).sum::<i64>();
-                    let armour = armour_held.iter().map(|elem| elem.armour()).sum::<i64>() +
-                        rings_held.iter().map(|elem| elem.armour()).sum::<i64>();
+                    let damage = weapon_held.damage()
+                        + rings_held.iter().map(|elem| elem.damage()).sum::<i64>();
+                    let armour = armour_held.iter().map(|elem| elem.armour()).sum::<i64>()
+                        + rings_held.iter().map(|elem| elem.armour()).sum::<i64>();
                     // Create player
                     let player = RpgEntity::new(PLAYER_START_HEALTH, damage, armour);
                     // Calculate turns to defeat
                     let player_turns = player.turns_to_defeat(enemy);
                     let enemy_turns = enemy.turns_to_defeat(&player);
-                    if player_turns <= enemy_turns && (least_gold.is_none() || cost < least_gold.unwrap()) {
+                    if player_turns <= enemy_turns
+                        && (least_gold.is_none() || cost < least_gold.unwrap())
+                    {
                         least_gold = Some(cost);
                     }
                 }
@@ -124,9 +127,40 @@ fn solve_part1(enemy: &RpgEntity) -> i64 {
     panic!("Did not find the least amount of gold with player win outcome!");
 }
 
-/// Solves AOC 2015 Day 21 Part 2 // ###
-fn solve_part2(_enemy: &RpgEntity) -> u64 {
-    0
+/// Solves AOC 2015 Day 21 Part 2 // Determines the most amount of gold the player can spend and
+/// still lose the fight.
+fn solve_part2(enemy: &RpgEntity) -> i64 {
+    let mut most_gold: Option<i64> = None;
+    for (q_armour, q_rings) in iproduct!(0..=1, 0..=2) {
+        for weapon_held in WEAPONS.iter() {
+            for armour_held in ARMOUR.iter().combinations(q_armour) {
+                for rings_held in RINGS.iter().combinations(q_rings) {
+                    let mut cost = 0;
+                    cost += weapon_held.cost();
+                    cost += armour_held.iter().map(|elem| elem.cost()).sum::<i64>();
+                    cost += rings_held.iter().map(|elem| elem.cost()).sum::<i64>();
+                    let damage = weapon_held.damage()
+                        + rings_held.iter().map(|elem| elem.damage()).sum::<i64>();
+                    let armour = armour_held.iter().map(|elem| elem.armour()).sum::<i64>()
+                        + rings_held.iter().map(|elem| elem.armour()).sum::<i64>();
+                    // Create player
+                    let player = RpgEntity::new(PLAYER_START_HEALTH, damage, armour);
+                    // Calculate turns to defeat
+                    let player_turns = player.turns_to_defeat(enemy);
+                    let enemy_turns = enemy.turns_to_defeat(&player);
+                    if player_turns > enemy_turns
+                        && (most_gold.is_none() || cost > most_gold.unwrap())
+                    {
+                        most_gold = Some(cost);
+                    }
+                }
+            }
+        }
+    }
+    if let Some(cost) = most_gold {
+        return cost;
+    }
+    panic!("Did not find the least amount of gold with player win outcome!");
 }
 
 #[cfg(test)]
