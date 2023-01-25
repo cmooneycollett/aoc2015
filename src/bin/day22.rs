@@ -73,9 +73,14 @@ fn solve_part1(enemy: &MagicEntity) -> i64 {
     panic!("Player was unable to defeat the enemy on easy mode!");
 }
 
-/// Solves AOC 2015 Day 22 Part 2 // ###
-fn solve_part2(_enemy: &MagicEntity) -> i64 {
-    0
+/// Solves AOC 2015 Day 22 Part 2 // Determines the minimum amount of mana needed for the player to
+/// defeat the enemy in Wizard Simulator 20XX (HARD mode).
+fn solve_part2(enemy: &MagicEntity) -> i64 {
+    let player = &MagicEntity::new(PLAYER_HEALTH, 0, 0, PLAYER_MANA);
+    if let Some(min_mana) = conduct_fight(player, enemy, true) {
+        return min_mana;
+    }
+    panic!("Player was unable to defeat the enemy on HARD mode!");
 }
 
 /// Conducts the fight between the player and the enemy. Returns an Option containing the minimum
@@ -95,59 +100,60 @@ fn conduct_fight_recursive(
 ) {
     for spell in Spell::iter() {
         // Clone the player and the enemy
-        let mut new_player = player.clone();
-        let mut new_enemy = enemy.clone();
+        let mut player = player.clone();
+        let mut enemy = enemy.clone();
         // Player turn
         // // Apply hard mode damage and check if player is dead
         if hard_mode {
-            new_player.deal_damage(1, true);
+            player.deal_damage(1, true);
         }
-        if new_player.is_dead() {
+        if player.is_dead() {
             return;
         }
         // // Process player effects then check if enemy is dead
-        new_player.process_effects(&mut new_enemy);
-        if new_enemy.is_dead() {
-            if min_mana.is_none() || min_mana.unwrap() > new_player.total_mana_spent() {
-                *min_mana = Some(new_player.total_mana_spent());
-            }
+        player.process_effects(&mut enemy);
+        if enemy.is_dead() {
+            update_min_mana(min_mana, &player);
             return;
         }
         // // Continue to next spell if player cannot cast the spell
-        if !new_player.can_cast(spell) {
+        if !player.can_cast(spell) {
             return;
         }
-        if new_player.is_effect_active(spell) {
+        if player.is_effect_active(spell) {
             continue;
         }
         // // Cast the spell
-        match new_player.cast_spell(spell, &mut new_enemy, false) {
+        match player.cast_spell(spell, &mut enemy, false) {
             Ok(_) => (),
             Err(_message) => continue,
         }
         // // Check if the enemy is dead
-        if new_enemy.is_dead() {
-            if min_mana.is_none() || min_mana.unwrap() > new_player.total_mana_spent() {
-                *min_mana = Some(new_player.total_mana_spent());
-            }
+        if enemy.is_dead() {
+            update_min_mana(min_mana, &player);
             return;
         }
         // Enemy turn
         // // Process player effects and check if enemy is dead
-        new_player.process_effects(&mut new_enemy);
-        if new_enemy.is_dead() {
-            if min_mana.is_none() || min_mana.unwrap() > new_player.total_mana_spent() {
-                *min_mana = Some(new_player.total_mana_spent());
-            }
+        player.process_effects(&mut enemy);
+        if enemy.is_dead() {
+            update_min_mana(min_mana, &player);
             return;
         }
         // // Enemy deals damage to the player and check if player is dead
-        new_player.deal_damage(new_enemy.damage(), false);
-        if new_player.is_dead() {
+        player.deal_damage(enemy.damage(), false);
+        if player.is_dead() {
             return;
         }
         // Go to the next set of turns
-        conduct_fight_recursive(&new_player, &new_enemy, hard_mode, min_mana);
+        conduct_fight_recursive(&player, &enemy, hard_mode, min_mana);
+    }
+}
+
+/// Updates the minimum mana value if the total mana spent by the player is a lower value.
+fn update_min_mana(min_mana: &mut Option<i64>, player: &MagicEntity) {
+    if min_mana.is_none() || min_mana.unwrap() > player.total_mana_spent() {
+        *min_mana = Some(player.total_mana_spent());
     }
 }
 
