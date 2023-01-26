@@ -61,9 +61,13 @@ fn solve_part1(computer: &SimpleComputer) -> isize {
     computer.register_b()
 }
 
-/// Solves AOC 2015 Day 23 Part 2 // ###
-fn solve_part2(_computer: &SimpleComputer) -> isize {
-    0
+/// Solves AOC 2015 Day 23 Part 2 // Returns the value held in register 'b' of the computer after
+/// starting with register 'a' value of 1 and executing the stored instructions.
+fn solve_part2(computer: &SimpleComputer) -> isize {
+    let mut computer = computer.clone();
+    computer.set_register_a(1);
+    computer.execute();
+    computer.register_b()
 }
 
 #[cfg(test)]
