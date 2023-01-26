@@ -1,6 +1,8 @@
 use std::fs;
 use std::time::Instant;
 
+use aoc2015::utils::bespoke::SimpleComputer;
+
 const PROBLEM_NAME: &str = "Opening the Turing Lock";
 const PROBLEM_INPUT_FILE: &str = "./input/day23.txt";
 const PROBLEM_DAY: u64 = 23;
@@ -39,22 +41,29 @@ pub fn main() {
 }
 
 /// Processes the AOC 2015 Day 23 input file into the format required by the solver functions.
-/// Returned value is ###.
-fn process_input_file(filename: &str) -> String {
+/// Returned value is SimpleComputer with instructions taken from input file and both registers set
+/// to 0.
+fn process_input_file(filename: &str) -> SimpleComputer {
     // Read contents of problem input file
-    let _raw_input = fs::read_to_string(filename).unwrap();
+    let raw_input = fs::read_to_string(filename).unwrap();
     // Process input file contents into data structure
-    unimplemented!();
+    if let Some(simple_computer) = SimpleComputer::new(&raw_input, 0, 0) {
+        return simple_computer;
+    }
+    panic!("Invalid input file format!");
 }
 
-/// Solves AOC 2015 Day 23 Part 1 // ###
-fn solve_part1(_input: &String) -> i64 {
-    unimplemented!();
+/// Solves AOC 2015 Day 23 Part 1 // Returns the value held in register 'b' of the computer after
+/// executing the stored instructions.
+fn solve_part1(computer: &SimpleComputer) -> isize {
+    let mut computer = computer.clone();
+    computer.execute();
+    computer.register_b()
 }
 
 /// Solves AOC 2015 Day 23 Part 2 // ###
-fn solve_part2(_input: &String) -> i64 {
-    unimplemented!();
+fn solve_part2(_computer: &SimpleComputer) -> isize {
+    0
 }
 
 #[cfg(test)]
