@@ -1,3 +1,4 @@
+use core::panic;
 use std::fs;
 use std::time::Instant;
 
@@ -51,9 +52,9 @@ fn process_input_file(filename: &str) -> Vec<u128> {
         .collect::<Vec<u128>>()
 }
 
-/// Solves AOC 2015 Day 24 Part 1 // Finds the quantum entanglement value for the first compartment
-/// (the one with the fewest possible number of presents) where there is a total of three
-/// compartments.
+/// Solves AOC 2015 Day 24 Part 1 // Finds the minimum quantum entanglement value for the first
+/// compartment (the one with the fewest possible number of presents) where there is a total of
+/// three compartments.
 fn solve_part1(values: &[u128]) -> u128 {
     let target: u128 = values.iter().sum::<u128>() / 3;
     if let Some(qe) = find_compartment1_qe(values, target) {
@@ -62,9 +63,15 @@ fn solve_part1(values: &[u128]) -> u128 {
     panic!("Could not determine the compartment 1 QE value!");
 }
 
-/// Solves AOC 2015 Day 24 Part 2 // ###
-fn solve_part2(_values: &[u128]) -> u128 {
-    0
+/// Solves AOC 2015 Day 24 Part 2 // Finds the minimum quantum entanglement value for the first
+/// compartment (the one with the fewest possible number of presents) where these is a total of four
+/// compartments.
+fn solve_part2(values: &[u128]) -> u128 {
+    let target: u128 = values.iter().sum::<u128>() / 4;
+    if let Some(qe) = find_compartment1_qe(values, target) {
+        return qe;
+    }
+    panic!("Could not determine the compartment 1 QE value!");
 }
 
 /// Finds the quantum entanglement value for the first compartment (the one with the fewest possible
